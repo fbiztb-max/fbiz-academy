@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Loader2, Mail, Lock, User as UserIcon } from "lucide-react";
 import { z } from "zod";
+import logo from "@/assets/fbiz-logo.png";
 
 const emailSchema = z.string().trim().email({ message: "بريد إلكتروني غير صحيح" }).max(255);
 const passwordSchema = z.string().min(6, { message: "كلمة المرور 6 أحرف على الأقل" }).max(72);
@@ -74,24 +75,26 @@ export default function Auth() {
         <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary-glow/10 blur-3xl" />
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-gold flex items-center justify-center font-black text-primary-foreground text-xl shadow-gold">م</div>
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-2xl overflow-hidden ring-1 ring-primary/40 shadow-gold bg-[hsl(217_70%_13%)]">
+              <img src={logo} alt="FBiz" className="w-full h-full object-cover" />
+            </div>
             <div>
-              <div className="font-black text-xl">المسار التنفيذي</div>
-              <div className="text-xs text-white/60">منصة تدريب الأعمال</div>
+              <div className="font-black text-2xl"><span className="text-gradient-gold">FBiz</span> أكاديمية</div>
+              <div className="text-xs text-white/60">فراس بزنس · تدريب الأعمال</div>
             </div>
           </div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <h1 className="text-5xl font-black leading-tight mb-6">
-              ابدأ <span className="text-gradient-gold">مسارك التنفيذي</span><br />
-              نحو إتقان الأعمال
+              من <span className="text-gradient-gold">قناة FBiz</span><br />
+              إلى تنفيذ حقيقي للأعمال
             </h1>
             <p className="text-white/70 text-lg leading-relaxed max-w-md">
-              منصة احترافية تحاكي تنفيذ الأعمال الواقعي عبر مراحل منظمة، تقييم دقيق، وملاحظات شخصية.
+              أكاديمية فراس بزنس تحوّل المعرفة إلى مهارة عبر مراحل تنفيذية، تقييم دقيق، وملاحظات شخصية تواكب رحلتك خطوة بخطوة.
             </p>
           </motion.div>
           <div className="flex items-center gap-6 text-sm text-white/50">
-            <div>© منصة المسار التنفيذي</div>
+            <div>© أكاديمية FBiz · فراس بزنس</div>
           </div>
         </div>
       </div>
@@ -100,8 +103,13 @@ export default function Auth() {
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="h-10 w-10 rounded-xl bg-gradient-gold flex items-center justify-center font-black text-primary-foreground">م</div>
-            <span className="font-black text-lg">المسار التنفيذي</span>
+            <div className="h-12 w-12 rounded-xl overflow-hidden ring-1 ring-primary/30 bg-[hsl(217_70%_13%)]">
+              <img src={logo} alt="FBiz" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <span className="font-black text-lg block leading-tight"><span className="text-gradient-gold">FBiz</span> أكاديمية</span>
+              <span className="text-[10px] text-muted-foreground">فراس بزنس</span>
+            </div>
           </div>
 
           <h2 className="text-3xl font-black mb-2">
