@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import Brand from "@/components/Brand";
 
 const userNav = [
   { to: "/", icon: LayoutDashboard, label: "اللوحة الرئيسية" },
@@ -62,13 +63,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       )}>
         <div className="h-full flex flex-col">
           <div className="p-6 border-b border-sidebar-border">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-gold flex items-center justify-center font-black text-primary-foreground shadow-gold-sm">م</div>
-              <div>
-                <div className="font-black text-base text-sidebar-foreground">المسار التنفيذي</div>
-                <div className="text-[11px] text-muted-foreground">منصة تدريب الأعمال</div>
-              </div>
-            </div>
+            <Brand size="md" />
           </div>
 
           <nav className="flex-1 overflow-y-auto scrollbar-thin px-3 py-4 space-y-1">
@@ -157,10 +152,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <button onClick={() => setMobileOpen(o => !o)} className="p-2 rounded-lg hover:bg-muted">
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-gold flex items-center justify-center font-black text-primary-foreground text-sm">م</div>
-              <span className="font-black text-sm">المسار التنفيذي</span>
-            </div>
+            <Brand size="sm" />
+            <div />
             <div className="w-9" />
           </div>
         </header>
