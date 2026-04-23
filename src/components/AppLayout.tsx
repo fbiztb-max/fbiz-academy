@@ -23,9 +23,11 @@ const userNav = [
 const adminNav = [
   { to: "/admin", icon: Shield, label: "لوحة الأدمن" },
   { to: "/admin/review", icon: MessageSquare, label: "التصحيح" },
+  { to: "/admin/feedback", icon: MessageSquare, label: "إرسال ملاحظة" },
   { to: "/admin/stages", icon: Layers, label: "إدارة المراحل" },
   { to: "/admin/news", icon: Newspaper, label: "إدارة الأخبار" },
   { to: "/admin/groups", icon: Users, label: "إدارة المجموعات" },
+  { to: "/admin/users", icon: Users, label: "إدارة المستخدمين" },
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
