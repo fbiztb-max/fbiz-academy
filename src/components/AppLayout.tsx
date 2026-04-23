@@ -10,6 +10,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Brand from "@/components/Brand";
+import SiteFooter from "@/components/SiteFooter";
+import FloatingContact from "@/components/FloatingContact";
 
 const userNav = [
   { to: "/", icon: LayoutDashboard, label: "اللوحة الرئيسية" },
@@ -160,7 +162,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         <div className="p-4 lg:p-8 max-w-7xl mx-auto animate-fade-in">{children}</div>
+        <SiteFooter />
       </main>
+      <FloatingContact />
     </div>
   );
 }
