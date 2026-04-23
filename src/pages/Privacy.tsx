@@ -61,6 +61,8 @@ export default function Privacy() {
           <p>قد نُحدّث هذه السياسة من وقت لآخر، وسننبّهك عند أي تغييرات جوهرية.</p>
         </div>
       </div>
+      <SiteFooter />
+      <FloatingContact />
     </div>
   );
 }
