@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import Brand from "@/components/Brand";
+import FloatingContact from "@/components/FloatingContact";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function Terms() {
   return (
@@ -46,6 +48,8 @@ export default function Terms() {
           <p>لأي استفسار قانوني، يمكنك التواصل عبر صفحة الإعدادات داخل المنصة.</p>
         </div>
       </div>
+      <SiteFooter />
+      <FloatingContact />
     </div>
   );
 }

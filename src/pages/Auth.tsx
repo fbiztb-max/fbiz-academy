@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Loader2, Mail, Lock, User as UserIcon } from "lucide-react";
 import { z } from "zod";
 import logo from "@/assets/fbiz-logo.png";
+import FloatingContact from "@/components/FloatingContact";
 
 const emailSchema = z.string().trim().email({ message: "بريد إلكتروني غير صحيح" }).max(255);
 const passwordSchema = z.string().min(6, { message: "كلمة المرور 6 أحرف على الأقل" }).max(72);
@@ -174,6 +175,7 @@ export default function Auth() {
           </p>
         </motion.div>
       </div>
+      <FloatingContact />
     </div>
   );
 }

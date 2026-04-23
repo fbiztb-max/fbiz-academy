@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import Brand from "@/components/Brand";
+import FloatingContact from "@/components/FloatingContact";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function Privacy() {
   return (
@@ -59,6 +61,8 @@ export default function Privacy() {
           <p>قد نُحدّث هذه السياسة من وقت لآخر، وسننبّهك عند أي تغييرات جوهرية.</p>
         </div>
       </div>
+      <SiteFooter />
+      <FloatingContact />
     </div>
   );
 }
