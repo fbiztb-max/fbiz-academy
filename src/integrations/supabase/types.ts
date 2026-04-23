@@ -353,6 +353,7 @@ export type Database = {
           passing_score: number
           question_text: string
           question_type: Database["public"]["Enums"]["stage_question_type"]
+          questions: Json | null
           title: string
           updated_at: string
           youtube_url: string | null
@@ -368,6 +369,7 @@ export type Database = {
           passing_score?: number
           question_text: string
           question_type: Database["public"]["Enums"]["stage_question_type"]
+          questions?: Json | null
           title: string
           updated_at?: string
           youtube_url?: string | null
@@ -383,6 +385,7 @@ export type Database = {
           passing_score?: number
           question_text?: string
           question_type?: Database["public"]["Enums"]["stage_question_type"]
+          questions?: Json | null
           title?: string
           updated_at?: string
           youtube_url?: string | null
@@ -392,10 +395,12 @@ export type Database = {
       submissions: {
         Row: {
           answer_text: string | null
+          answers: Json | null
           created_at: string
           feedback: string | null
           file_url: string | null
           id: string
+          max_score: number | null
           reviewed_at: string | null
           reviewed_by: string | null
           score: number | null
@@ -406,10 +411,12 @@ export type Database = {
         }
         Insert: {
           answer_text?: string | null
+          answers?: Json | null
           created_at?: string
           feedback?: string | null
           file_url?: string | null
           id?: string
+          max_score?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           score?: number | null
@@ -420,10 +427,12 @@ export type Database = {
         }
         Update: {
           answer_text?: string | null
+          answers?: Json | null
           created_at?: string
           feedback?: string | null
           file_url?: string | null
           id?: string
+          max_score?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           score?: number | null
