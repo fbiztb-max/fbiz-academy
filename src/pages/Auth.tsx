@@ -166,6 +166,12 @@ export default function Auth() {
               {mode === "login" ? "أنشئ حساباً" : "سجّل دخولك"}
             </button>
           </p>
+          <p className="text-center text-[11px] text-muted-foreground mt-4">
+            بإنشائك حساباً فأنت توافق على{" "}
+            <a href="/terms" className="text-primary hover:underline">الشروط والأحكام</a>
+            {" "}و{" "}
+            <a href="/privacy" className="text-primary hover:underline">سياسة الخصوصية</a>
+          </p>
         </motion.div>
       </div>
     </div>
