@@ -23,7 +23,7 @@ export default function AdminReview() {
 
   const load = async () => {
     let q = supabase.from("submissions")
-      .select("*, stages(title, order_index, question_text, options, correct_answer), profiles!submissions_user_id_fkey(full_name, serial_id, avatar_url, email)")
+      .select("*, stages(title, order_index, questions, question_text, options, correct_answer, passing_score), profiles!submissions_user_id_fkey(full_name, serial_id, avatar_url, email)")
       .order("created_at", { ascending: false });
     if (tab === "pending") q = q.eq("status", "pending");
     else q = q.in("status", ["passed", "failed"]);
@@ -48,7 +48,8 @@ export default function AdminReview() {
 
   const saveReview = async () => {
     if (!selected || !user) return;
-    const finalStatus = status === "passed" && score >= 60 ? "passed" : "failed";
+    const passing = selected.stages?.passing_score ?? 60;
+    const finalStatus = status === "passed" && score >= passing ? "passed" : "failed";
     const { error } = await supabase.from("submissions").update({
       score, feedback, status: finalStatus, reviewed_by: user.id, reviewed_at: new Date().toISOString(),
     }).eq("id", selected.id);
@@ -121,16 +122,53 @@ export default function AdminReview() {
                 <p className="text-sm text-muted-foreground">{selected.profiles?.full_name} #{selected.profiles?.serial_id} • {selected.profiles?.email}</p>
               </div>
 
-              <div className="bg-muted/40 rounded-xl p-3 text-sm">
-                <div className="text-xs font-bold text-muted-foreground mb-1">السؤال</div>
-                {selected.stages?.question_text}
-              </div>
-
-              <div className="bg-muted/40 rounded-xl p-3 text-sm">
-                <div className="text-xs font-bold text-muted-foreground mb-1">إجابة المتدرب</div>
-                <div className="whitespace-pre-wrap">{selected.answer_text || "—"}</div>
-                {selected.file_url && <Button onClick={() => fileSignedUrl(selected.file_url)} variant="outline" size="sm" className="mt-2"><ExternalLink className="h-3 w-3"/>فتح الملف</Button>}
-              </div>
+              {(() => {
+                const questions = (selected.stages?.questions as any[]) || [];
+                const answers = (selected.answers as any[]) || [];
+                if (questions.length && answers.length) {
+                  return (
+                    <div className="space-y-3">
+                      {questions.map((q: any, idx: number) => {
+                        const ans = answers.find((a: any) => a.question_id === q.id) || answers[idx];
+                        const opt = (q.options || []).find((o: any) => o.id === ans?.answer);
+                        return (
+                          <div key={q.id || idx} className="bg-muted/40 rounded-xl p-3 text-sm">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="text-xs font-bold text-muted-foreground">سؤال {idx + 1} ({q.points} درجة)</div>
+                              {ans?.awarded != null && (
+                                <span className={`text-xs font-black px-2 py-0.5 rounded-full ${ans.correct ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
+                                  {ans.awarded}/{q.points}
+                                </span>
+                              )}
+                            </div>
+                            <div className="font-bold mb-1">{q.text}</div>
+                            <div className="text-xs text-muted-foreground mb-1">إجابة المتدرب:</div>
+                            {ans?.type === "file" && ans.file_url ? (
+                              <Button onClick={() => fileSignedUrl(ans.file_url)} variant="outline" size="sm"><ExternalLink className="h-3 w-3"/>فتح الملف</Button>
+                            ) : (
+                              <div className="whitespace-pre-wrap">{opt?.text || ans?.answer || "—"}</div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                }
+                // legacy single-question
+                return (
+                  <>
+                    <div className="bg-muted/40 rounded-xl p-3 text-sm">
+                      <div className="text-xs font-bold text-muted-foreground mb-1">السؤال</div>
+                      {selected.stages?.question_text}
+                    </div>
+                    <div className="bg-muted/40 rounded-xl p-3 text-sm">
+                      <div className="text-xs font-bold text-muted-foreground mb-1">إجابة المتدرب</div>
+                      <div className="whitespace-pre-wrap">{selected.answer_text || "—"}</div>
+                      {selected.file_url && <Button onClick={() => fileSignedUrl(selected.file_url)} variant="outline" size="sm" className="mt-2"><ExternalLink className="h-3 w-3"/>فتح الملف</Button>}
+                    </div>
+                  </>
+                );
+              })()}
 
               <div>
                 <Label>الدرجة (0-100)</Label>
