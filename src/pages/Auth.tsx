@@ -175,6 +175,7 @@ export default function Auth() {
           </p>
         </motion.div>
       </div>
+      <FloatingContact />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import Brand from "@/components/Brand";
+import FloatingContact from "@/components/FloatingContact";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function Privacy() {
   return (
