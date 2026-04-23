@@ -30,9 +30,9 @@ export default function Brand({ size = "md", showText = true, className, variant
       </div>
       {showText && (
         <div className={cn(variant === "stacked" && "text-center")}>
-          <div className="font-black text-base leading-tight tracking-tight">
-            <span className="text-gradient-gold">FBiz</span>
-            <span className="mx-1.5 text-foreground">أكاديمية</span>
+          <div className="font-black text-base leading-tight tracking-tight" dir="rtl">
+            <span className="text-foreground">أكاديمية</span>
+            <span className="mx-1.5 text-gradient-gold" dir="ltr">FBiz</span>
           </div>
           <div className="text-[11px] text-muted-foreground">فراس بزنس · تدريب الأعمال</div>
         </div>
