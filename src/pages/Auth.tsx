@@ -76,12 +76,15 @@ export default function Auth() {
         <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary-glow/10 blur-3xl" />
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
-          <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-2xl overflow-hidden ring-1 ring-primary/40 shadow-gold bg-[hsl(217_70%_13%)]">
+          <div className="flex items-center gap-4" dir="rtl">
+            <div className="h-16 w-16 rounded-2xl overflow-hidden ring-1 ring-primary/40 shadow-gold bg-[hsl(217_70%_13%)] shrink-0">
               <img src={logo} alt="FBiz" className="w-full h-full object-cover" />
             </div>
             <div>
-              <div className="font-black text-2xl"><span className="text-gradient-gold">FBiz</span> أكاديمية</div>
+              <div className="font-black text-2xl flex items-center gap-2">
+                <span>أكاديمية</span>
+                <bdi className="text-gradient-gold" style={{ unicodeBidi: "isolate" }}>FBiz</bdi>
+              </div>
               <div className="text-xs text-white/60">فراس بزنس · تدريب الأعمال</div>
             </div>
           </div>
@@ -103,12 +106,15 @@ export default function Auth() {
       {/* Right form */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="h-12 w-12 rounded-xl overflow-hidden ring-1 ring-primary/30 bg-[hsl(217_70%_13%)]">
+          <div className="lg:hidden flex items-center gap-3 mb-8" dir="rtl">
+            <div className="h-12 w-12 rounded-xl overflow-hidden ring-1 ring-primary/30 bg-[hsl(217_70%_13%)] shrink-0">
               <img src={logo} alt="FBiz" className="w-full h-full object-cover" />
             </div>
             <div>
-              <span className="font-black text-lg block leading-tight"><span className="text-gradient-gold">FBiz</span> أكاديمية</span>
+              <div className="font-black text-lg leading-tight flex items-center gap-1.5">
+                <span>أكاديمية</span>
+                <bdi className="text-gradient-gold" style={{ unicodeBidi: "isolate" }}>FBiz</bdi>
+              </div>
               <span className="text-[10px] text-muted-foreground">فراس بزنس</span>
             </div>
           </div>
