@@ -10,6 +10,9 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Upload, Youtube, Sparkles, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Confetti from "@/components/Confetti";
+
+const ConfettiBurst = () => <Confetti trigger={Date.now()} />;
 
 type QType = "mcq" | "truefalse" | "text" | "file";
 interface Question {

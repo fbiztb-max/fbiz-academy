@@ -5,14 +5,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Volume2, VolumeX } from "lucide-react";
+import { isMuted, setMuted, playSound } from "@/hooks/useSound";
 
 export default function Settings() {
   const { theme, toggle } = useTheme();
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
   const [saving, setSaving] = useState(false);
+  const [muted, setMutedState] = useState(isMuted());
+
+  const toggleSound = (v: boolean) => {
+    setMuted(!v);
+    setMutedState(!v);
+    if (v) playSound("pop");
+  };
 
   const changePassword = async () => {
     if (pw.length < 6) return toast.error("كلمة المرور 6 أحرف على الأقل");
@@ -43,6 +52,20 @@ export default function Settings() {
             {theme === "dark" ? <Sun className="h-4 w-4"/> : <Moon className="h-4 w-4"/>}
             {theme === "dark" ? "وضع فاتح" : "وضع داكن"}
           </Button>
+        </div>
+      </div>
+
+      <div className="surface-card p-6 mb-4">
+        <h3 className="font-black mb-4 flex items-center gap-2">
+          {muted ? <VolumeX className="h-4 w-4 text-muted-foreground"/> : <Volume2 className="h-4 w-4 text-primary"/>}
+          الأصوات
+        </h3>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="font-bold text-sm">المؤثرات الصوتية الخفيفة</div>
+            <div className="text-xs text-muted-foreground">نقرات، إشعارات، نجاح المراحل</div>
+          </div>
+          <Switch checked={!muted} onCheckedChange={toggleSound} />
         </div>
       </div>
 
