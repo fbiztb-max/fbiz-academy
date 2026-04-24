@@ -29,10 +29,10 @@ export default function Brand({ size = "md", showText = true, className, variant
         <img src={logo} alt="شعار FBiz - فراس بزنس" className="w-full h-full object-cover" />
       </div>
       {showText && (
-        <div className={cn(variant === "stacked" && "text-center")}>
-          <div className="font-black text-base leading-tight tracking-tight" dir="rtl">
+        <div className={cn(variant === "stacked" && "text-center")} dir="rtl">
+          <div className="font-black text-base leading-tight tracking-tight flex items-center gap-1.5 justify-start">
             <span className="text-foreground">أكاديمية</span>
-            <span className="mx-1.5 text-gradient-gold" dir="ltr">FBiz</span>
+            <bdi className="text-gradient-gold font-black" style={{ unicodeBidi: "isolate" }}>FBiz</bdi>
           </div>
           <div className="text-[11px] text-muted-foreground">فراس بزنس · تدريب الأعمال</div>
         </div>
