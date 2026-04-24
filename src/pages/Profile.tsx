@@ -65,6 +65,14 @@ export default function Profile() {
     refreshProfile();
   };
 
+  const socials = [
+    { l: "Instagram", v: ig, set: setIg, ph: "https://instagram.com/username", color: "from-[#F58529] via-[#DD2A7B] to-[#8134AF]" },
+    { l: "TikTok", v: tt, set: setTt, ph: "https://tiktok.com/@username", color: "from-black to-neutral-800" },
+    { l: "Snapchat", v: sc, set: setSc, ph: "https://snapchat.com/add/username", color: "from-[#FFFC00] to-[#FFEC00]" },
+    { l: "Telegram", v: tg, set: setTg, ph: "https://t.me/username", color: "from-[#229ED9] to-[#1B7FAE]" },
+    { l: "WhatsApp", v: wa, set: setWa, ph: "https://wa.me/9665xxxxxxxx", color: "from-[#25D366] to-[#128C7E]" },
+  ];
+
   return (
     <AppLayout>
       <div className="mb-8">
@@ -89,6 +97,20 @@ export default function Profile() {
         </div>
       </div>
 
+      {socials.some(s => s.v) && (
+        <div className="surface-card p-5 mb-4">
+          <h3 className="font-black text-sm mb-3">روابط تواصلي (تظهر للزوار في بروفايلي)</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+            {socials.filter(s => s.v).map(s => (
+              <a key={s.l} href={s.v} target="_blank" rel="noopener noreferrer"
+                className={`bg-gradient-to-br ${s.color} text-white rounded-xl p-3 font-bold text-sm hover:scale-105 transition shadow-sm text-center`}>
+                {s.l}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="surface-card p-6 space-y-4">
         <div>
           <Label>الاسم الكامل</Label>
@@ -99,13 +121,7 @@ export default function Profile() {
         <h3 className="font-black text-sm">روابط التواصل</h3>
         <p className="text-xs text-muted-foreground -mt-2">المنصات المسموح بها فقط: إنستغرام، تيك توك، سناب شات، تليجرام، واتساب</p>
 
-        {[
-          { l: "Instagram", v: ig, set: setIg, ph: "https://instagram.com/username" },
-          { l: "TikTok", v: tt, set: setTt, ph: "https://tiktok.com/@username" },
-          { l: "Snapchat", v: sc, set: setSc, ph: "https://snapchat.com/add/username" },
-          { l: "Telegram", v: tg, set: setTg, ph: "https://t.me/username" },
-          { l: "WhatsApp", v: wa, set: setWa, ph: "https://wa.me/9665xxxxxxxx" },
-        ].map(f => (
+        {socials.map(f => (
           <div key={f.l}>
             <Label>{f.l}</Label>
             <Input value={f.v} onChange={e => f.set(e.target.value)} placeholder={f.ph} className="mt-1.5 h-11" dir="ltr" />

@@ -5,7 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, Layers, History, MessageSquare, Newspaper, Users, Bell,
-  User as UserIcon, Settings, LogOut, Shield, Menu, X, Moon, Sun
+  User as UserIcon, Settings, LogOut, Shield, Menu, X, Moon, Sun, Headphones, Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,17 +20,21 @@ const userNav = [
   { to: "/feedback", icon: MessageSquare, label: "الملاحظات" },
   { to: "/news", icon: Newspaper, label: "الأخبار" },
   { to: "/groups", icon: Users, label: "المجموعات" },
+  { to: "/support", icon: Headphones, label: "تواصل مع الإدارة" },
 ];
 
 const adminNav = [
   { to: "/admin", icon: Shield, label: "لوحة الأدمن" },
   { to: "/admin/review", icon: MessageSquare, label: "التصحيح" },
+  { to: "/admin/support", icon: Headphones, label: "دعم المستخدمين" },
   { to: "/admin/feedback", icon: MessageSquare, label: "إرسال ملاحظة" },
   { to: "/admin/stages", icon: Layers, label: "إدارة المراحل" },
   { to: "/admin/news", icon: Newspaper, label: "إدارة الأخبار" },
   { to: "/admin/groups", icon: Users, label: "إدارة المجموعات" },
   { to: "/admin/users", icon: Users, label: "إدارة المستخدمين" },
 ];
+
+const OWNER_EMAIL = "ferrrras2356@gmail.com";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { profile, isAdmin, signOut, user } = useAuth();
@@ -107,6 +111,16 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                     <span>{item.label}</span>
                   </NavLink>
                 ))}
+                {profile?.email === OWNER_EMAIL && (
+                  <NavLink to="/admin/admins"
+                    className={({ isActive }) => cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                      isActive ? "bg-primary/10 text-primary shadow-gold-sm" : "text-sidebar-foreground hover:bg-sidebar-accent"
+                    )}>
+                    <Crown className="h-4 w-4 text-primary" />
+                    <span>إدارة المشرفين</span>
+                  </NavLink>
+                )}
               </>
             )}
           </nav>

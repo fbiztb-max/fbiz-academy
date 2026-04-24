@@ -17,7 +17,9 @@ import Groups from "./pages/Groups";
 import GroupChat from "./pages/GroupChat";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 import Settings from "./pages/Settings";
+import SupportChat from "./pages/SupportChat";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminReview from "./pages/admin/AdminReview";
 import AdminStages from "./pages/admin/AdminStages";
@@ -25,6 +27,8 @@ import AdminNews from "./pages/admin/AdminNews";
 import AdminGroups from "./pages/admin/AdminGroups";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminFeedback from "./pages/admin/AdminFeedback";
+import AdminSupport from "./pages/admin/AdminSupport";
+import AdminAdmins from "./pages/admin/AdminAdmins";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
@@ -50,18 +54,22 @@ const App = () => (
               <Route path="/groups/:id" element={<ProtectedRoute><GroupChat /></ProtectedRoute>} />
               <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/u/:id" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/support" element={<ProtectedRoute><SupportChat /></ProtectedRoute>} />
 
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
 
               <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
               <Route path="/admin/review" element={<ProtectedRoute adminOnly><AdminReview /></ProtectedRoute>} />
+              <Route path="/admin/support" element={<ProtectedRoute adminOnly><AdminSupport /></ProtectedRoute>} />
               <Route path="/admin/feedback" element={<ProtectedRoute adminOnly><AdminFeedback /></ProtectedRoute>} />
               <Route path="/admin/stages" element={<ProtectedRoute adminOnly><AdminStages /></ProtectedRoute>} />
               <Route path="/admin/news" element={<ProtectedRoute adminOnly><AdminNews /></ProtectedRoute>} />
               <Route path="/admin/groups" element={<ProtectedRoute adminOnly><AdminGroups /></ProtectedRoute>} />
               <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsers /></ProtectedRoute>} />
+              <Route path="/admin/admins" element={<ProtectedRoute adminOnly><AdminAdmins /></ProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

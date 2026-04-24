@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Search, FileCheck, ExternalLink } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { playSound } from "@/hooks/useSound";
 
 type Tab = "pending" | "reviewed";
 
@@ -23,12 +24,19 @@ export default function AdminReview() {
 
   const load = async () => {
     let q = supabase.from("submissions")
-      .select("*, stages(title, order_index, questions, question_text, options, correct_answer, passing_score), profiles!submissions_user_id_fkey(full_name, serial_id, avatar_url, email)")
+      .select("*, stages(title, order_index, questions, question_text, options, correct_answer, passing_score)")
       .order("created_at", { ascending: false });
     if (tab === "pending") q = q.eq("status", "pending");
     else q = q.in("status", ["passed", "failed"]);
-    const { data } = await q.limit(100);
-    setItems(data ?? []);
+    const { data } = await q.limit(200);
+    const subs = data ?? [];
+    const ids = Array.from(new Set(subs.map((s: any) => s.user_id)));
+    const profMap = new Map<string, any>();
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("user_id, full_name, serial_id, avatar_url, email").in("user_id", ids);
+      (profs ?? []).forEach((p: any) => profMap.set(p.user_id, p));
+    }
+    setItems(subs.map((s: any) => ({ ...s, profiles: profMap.get(s.user_id) })));
   };
   useEffect(() => { load(); }, [tab]);
 
@@ -63,6 +71,7 @@ export default function AdminReview() {
       link: "/feedback",
     });
     toast.success("تم حفظ التصحيح");
+    playSound(finalStatus === "passed" ? "success" : "notify");
     setSelected(null);
     load();
   };
