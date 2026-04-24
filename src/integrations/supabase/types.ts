@@ -451,6 +451,39 @@ export type Database = {
           },
         ]
       }
+      support_messages: {
+        Row: {
+          content: string | null
+          created_at: string
+          file_url: string | null
+          id: string
+          is_read: boolean
+          sender_id: string
+          sender_role: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_read?: boolean
+          sender_id: string
+          sender_role: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_read?: boolean
+          sender_id?: string
+          sender_role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -489,6 +522,7 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
+      is_owner_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"

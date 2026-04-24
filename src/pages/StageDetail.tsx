@@ -10,6 +10,9 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Upload, Youtube, Sparkles, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Confetti from "@/components/Confetti";
+
+const ConfettiBurst = () => <Confetti trigger={Date.now()} />;
 
 type QType = "mcq" | "truefalse" | "text" | "file";
 interface Question {
@@ -110,7 +113,11 @@ export default function StageDetail() {
       });
       if (error) { toast.error(error.message); return; }
 
-      setSuccess({ passed: status === "passed", score: finalScore ?? autoScore, maxScore, pending: status === "pending" });
+      const finalState = { passed: status === "passed", score: finalScore ?? autoScore, maxScore, pending: status === "pending" };
+      setSuccess(finalState);
+      // SFX feedback
+      const { playSound } = await import("@/hooks/useSound");
+      playSound(finalState.passed ? "success" : finalState.pending ? "notify" : "error");
     } finally { setSubmitting(false); }
   };
 
@@ -123,6 +130,7 @@ export default function StageDetail() {
     const pending = success?.pending;
     return (
       <AppLayout>
+        {passed && <ConfettiBurst />}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="surface-card p-10 text-center max-w-2xl mx-auto">
           <div className={cn(
             "h-20 w-20 mx-auto rounded-full flex items-center justify-center mb-6 animate-gold-pulse",
