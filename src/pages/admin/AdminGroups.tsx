@@ -44,20 +44,24 @@ export default function AdminGroups() {
 
   const addMember = async () => {
     if (!editing?.id || !searchSerial.trim()) return;
-    const { data: prof } = await supabase.from("profiles").select("user_id, full_name").eq("serial_id", parseInt(searchSerial)).maybeSingle();
+    const { data: prof, error: pErr } = await supabase.from("profiles").select("user_id, full_name").eq("serial_id", parseInt(searchSerial)).maybeSingle();
+    if (pErr) return toast.error(pErr.message);
     if (!prof) return toast.error("لا يوجد مستخدم بهذا الرقم");
-    if (members.length >= 10) return toast.error("الحد الأقصى 10 أعضاء");
+    if (members.length >= (editing.max_members ?? 10)) return toast.error(`الحد الأقصى ${editing.max_members ?? 10} أعضاء`);
     const { error } = await supabase.from("group_members").insert({ group_id: editing.id, user_id: prof.user_id });
     if (error) return toast.error(error.code === "23505" ? "العضو موجود بالفعل" : error.message);
     toast.success(`تمت إضافة ${prof.full_name}`);
     setSearchSerial("");
-    loadMembers(editing.id);
+    await loadMembers(editing.id);
+    load();
   };
 
   const removeMember = async (uid: string) => {
     if (!editing?.id) return;
-    await supabase.from("group_members").delete().eq("group_id", editing.id).eq("user_id", uid);
-    loadMembers(editing.id);
+    const { error } = await supabase.from("group_members").delete().eq("group_id", editing.id).eq("user_id", uid);
+    if (error) return toast.error(error.message);
+    await loadMembers(editing.id);
+    load();
   };
 
   const removeGroup = async (id: string) => {
