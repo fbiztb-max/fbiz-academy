@@ -14,6 +14,7 @@ interface Msg {
   sender_id: string;
   sender_role: "user" | "admin";
   content: string | null;
+  file_url: string | null;
   created_at: string;
   is_read: boolean;
 }
