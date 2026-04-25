@@ -5,11 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Send, Paperclip, Users } from "lucide-react";
+import { ArrowRight, Send, Paperclip, Users, BarChart3, Plus, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { arSA } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import Poll from "@/components/Poll";
 
 export default function GroupChat() {
   const { id } = useParams();
@@ -18,18 +19,43 @@ export default function GroupChat() {
   const [group, setGroup] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
+  const [polls, setPolls] = useState<any[]>([]);
   const [text, setText] = useState("");
+  const [showPoll, setShowPoll] = useState(false);
+  const [pollQ, setPollQ] = useState("");
+  const [pollOpts, setPollOpts] = useState<string[]>(["", ""]);
   const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const load = async () => {
     if (!id) return;
-    const [{ data: g }, { data: ms }, { data: mem }] = await Promise.all([
+    const [{ data: g }, { data: ms }, { data: mem }, { data: pls }] = await Promise.all([
       supabase.from("groups").select("*").eq("id", id).maybeSingle(),
-      supabase.from("group_messages").select("*, profiles(full_name, avatar_url, serial_id)").eq("group_id", id).order("created_at"),
-      supabase.from("group_members").select("user_id, profiles(full_name, avatar_url, serial_id)").eq("group_id", id),
+      supabase.from("group_messages").select("*").eq("group_id", id).order("created_at"),
+      supabase.from("group_members").select("user_id").eq("group_id", id),
+      supabase.from("group_polls").select("*").eq("group_id", id).order("created_at", { ascending: false }),
     ]);
-    setGroup(g); setMessages(ms ?? []); setMembers(mem ?? []);
+    const userIds = Array.from(new Set([...(ms?.map(m => m.user_id) ?? []), ...(mem?.map(m => m.user_id) ?? [])]));
+    const { data: profs } = userIds.length
+      ? await supabase.from("profiles").select("user_id, full_name, avatar_url, serial_id").in("user_id", userIds)
+      : { data: [] as any[] };
+    const pMap = new Map((profs ?? []).map(p => [p.user_id, p]));
+    setGroup(g);
+    setMessages((ms ?? []).map(m => ({ ...m, profiles: pMap.get(m.user_id) })));
+    setMembers((mem ?? []).map(m => ({ ...m, profiles: pMap.get(m.user_id) })));
+    setPolls(pls ?? []);
+  };
+
+  const createPoll = async () => {
+    if (!user || !id) return;
+    const cleanOpts = pollOpts.map(o => o.trim()).filter(Boolean);
+    if (!pollQ.trim() || cleanOpts.length < 2) return toast.error("اكتب السؤال وخيارَين على الأقل");
+    const opts = cleanOpts.map((t, i) => ({ id: `o${i + 1}`, text: t }));
+    const { error } = await supabase.from("group_polls").insert({
+      group_id: id, question: pollQ.trim(), options: opts, created_by: user.id,
+    });
+    if (error) return toast.error(error.message);
+    setPollQ(""); setPollOpts(["", ""]); setShowPoll(false); load();
   };
 
   useEffect(() => {
@@ -80,7 +106,16 @@ export default function GroupChat() {
           </div>
 
           <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-3">
-            {messages.length === 0 ? (
+            {polls.length > 0 && (
+              <div className="space-y-2 mb-2">
+                {polls.map(p => (
+                  <div key={p.id} className="bg-card rounded-2xl border border-border p-1">
+                    <Poll scope="group" pollId={p.id} question={p.question} options={p.options as any} />
+                  </div>
+                ))}
+              </div>
+            )}
+            {messages.length === 0 && polls.length === 0 ? (
               <div className="text-center text-muted-foreground text-sm mt-12">لا توجد رسائل بعد. ابدأ المحادثة!</div>
             ) : messages.map(m => {
               const mine = m.user_id === user?.id;
@@ -99,9 +134,37 @@ export default function GroupChat() {
             <div ref={bottomRef} />
           </div>
 
+          {showPoll && (
+            <div className="border-t border-border p-3 space-y-2 bg-muted/30">
+              <Input placeholder="سؤال الاستطلاع" value={pollQ} onChange={e => setPollQ(e.target.value)} />
+              {pollOpts.map((opt, i) => (
+                <div key={i} className="flex gap-2">
+                  <Input placeholder={`خيار ${i + 1}`} value={opt} onChange={e => {
+                    const next = [...pollOpts]; next[i] = e.target.value; setPollOpts(next);
+                  }} />
+                  {pollOpts.length > 2 && (
+                    <Button variant="ghost" size="icon" onClick={() => setPollOpts(pollOpts.filter((_, j) => j !== i))}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <div className="flex gap-2">
+                {pollOpts.length < 6 && (
+                  <Button variant="outline" size="sm" onClick={() => setPollOpts([...pollOpts, ""])}>
+                    <Plus className="h-3 w-3" /> خيار
+                  </Button>
+                )}
+                <Button variant="gold" size="sm" onClick={createPoll}>نشر الاستطلاع</Button>
+                <Button variant="ghost" size="sm" onClick={() => setShowPoll(false)}>إلغاء</Button>
+              </div>
+            </div>
+          )}
+
           <div className="p-3 border-t border-border flex gap-2">
             <input ref={fileRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && sendFile(e.target.files[0])} />
-            <Button variant="ghost" size="icon" onClick={() => fileRef.current?.click()}><Paperclip className="h-4 w-4"/></Button>
+            <Button variant="ghost" size="icon" onClick={() => fileRef.current?.click()} title="إرفاق ملف"><Paperclip className="h-4 w-4"/></Button>
+            <Button variant="ghost" size="icon" onClick={() => setShowPoll(s => !s)} title="إنشاء استطلاع"><BarChart3 className="h-4 w-4"/></Button>
             <Input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="اكتب رسالة..." />
             <Button variant="gold" size="icon" onClick={send}><Send className="h-4 w-4"/></Button>
           </div>

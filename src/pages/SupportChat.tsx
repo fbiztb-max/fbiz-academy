@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Send, Headphones, ShieldCheck } from "lucide-react";
+import { Send, Headphones, ShieldCheck, Paperclip, FileIcon } from "lucide-react";
 import { playSound } from "@/hooks/useSound";
 
 interface Msg {
@@ -14,6 +14,7 @@ interface Msg {
   sender_id: string;
   sender_role: "user" | "admin";
   content: string | null;
+  file_url: string | null;
   created_at: string;
   is_read: boolean;
 }
@@ -53,6 +54,23 @@ export default function SupportChat() {
   }, [user]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs.length]);
+
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const sendFile = async (file: File) => {
+    if (!user) return;
+    if (file.size > 10 * 1024 * 1024) return toast.error("الحد الأقصى 10MB");
+    const path = `${user.id}/${Date.now()}-${file.name}`;
+    const { error: upErr } = await supabase.storage.from("support-files").upload(path, file);
+    if (upErr) return toast.error("فشل رفع الملف");
+    const { data: signed } = await supabase.storage.from("support-files").createSignedUrl(path, 60 * 60 * 24 * 30);
+    const { error } = await supabase.from("support_messages").insert({
+      user_id: user.id, sender_id: user.id, sender_role: "user",
+      content: file.name, file_url: signed?.signedUrl ?? null,
+    });
+    if (error) return toast.error(error.message);
+    playSound("send");
+  };
 
   const send = async () => {
     if (!user || !text.trim()) return;
@@ -99,7 +117,11 @@ export default function SupportChat() {
                      : "bg-muted text-foreground rounded-bl-md border border-border/50"
                 }`}>
                   {!me && <div className="text-[10px] font-black mb-0.5 text-primary">المشرف</div>}
-                  {m.content}
+                  {m.file_url ? (
+                    <a href={m.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 underline">
+                      <FileIcon className="h-4 w-4" /> {m.content || "ملف مرفق"}
+                    </a>
+                  ) : m.content}
                   <div className={`text-[10px] mt-1 ${me ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                     {new Date(m.created_at).toLocaleString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
                   </div>
@@ -110,6 +132,10 @@ export default function SupportChat() {
           <div ref={endRef} />
         </div>
         <div className="border-t border-border p-3 flex gap-2">
+          <input ref={fileRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && sendFile(e.target.files[0])} />
+          <Button variant="ghost" size="icon" onClick={() => fileRef.current?.click()} className="h-11 w-11 shrink-0" title="إرفاق ملف">
+            <Paperclip className="h-4 w-4" />
+          </Button>
           <Input value={text} onChange={e => setText(e.target.value)}
             onKeyDown={e => e.key === "Enter" && send()}
             placeholder="اكتب رسالتك للمشرفين..." className="h-11" />

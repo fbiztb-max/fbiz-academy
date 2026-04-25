@@ -6,16 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ThumbsUp, ThumbsDown, MessageCircle, Send } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageCircle, Send, BarChart3, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { arSA } from "date-fns/locale";
+import Poll from "@/components/Poll";
 
 export default function News() {
   const { user, isAdmin } = useAuth();
   const [news, setNews] = useState<any[]>([]);
   const [reactions, setReactions] = useState<Record<string, { likes: number; dislikes: number; mine?: string }>>({});
   const [comments, setComments] = useState<Record<string, any[]>>({});
+  const [polls, setPolls] = useState<Record<string, any[]>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [newComment, setNewComment] = useState("");
   // admin compose
@@ -23,16 +25,24 @@ export default function News() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [pollQ, setPollQ] = useState("");
+  const [pollOpts, setPollOpts] = useState<string[]>(["", ""]);
 
   const load = async () => {
     const { data } = await supabase.from("news").select("*").order("created_at", { ascending: false });
     setNews(data ?? []);
     if (data?.length) {
       const ids = data.map(n => n.id);
-      const [{ data: rxs }, { data: cms }] = await Promise.all([
+      const [{ data: rxs }, { data: cms }, { data: pls }] = await Promise.all([
         supabase.from("news_reactions").select("news_id, user_id, reaction").in("news_id", ids),
-        supabase.from("news_comments").select("*, profiles(full_name, avatar_url, serial_id)").in("news_id", ids).order("created_at"),
+        supabase.from("news_comments").select("*").in("news_id", ids).order("created_at"),
+        supabase.from("news_polls").select("*").in("news_id", ids),
       ]);
+      const cmUserIds = Array.from(new Set((cms ?? []).map((c: any) => c.user_id)));
+      const { data: profs } = cmUserIds.length
+        ? await supabase.from("profiles").select("user_id, full_name, avatar_url, serial_id").in("user_id", cmUserIds)
+        : { data: [] as any[] };
+      const pMap = new Map((profs ?? []).map(p => [p.user_id, p]));
       const rxMap: any = {};
       ids.forEach(id => rxMap[id] = { likes: 0, dislikes: 0 });
       (rxs ?? []).forEach((r: any) => {
@@ -41,8 +51,14 @@ export default function News() {
       });
       setReactions(rxMap);
       const cmMap: any = {};
-      (cms ?? []).forEach((c: any) => { (cmMap[c.news_id] = cmMap[c.news_id] || []).push(c); });
+      (cms ?? []).forEach((c: any) => {
+        const enriched = { ...c, profiles: pMap.get(c.user_id) };
+        (cmMap[c.news_id] = cmMap[c.news_id] || []).push(enriched);
+      });
       setComments(cmMap);
+      const plMap: any = {};
+      (pls ?? []).forEach((p: any) => { (plMap[p.news_id] = plMap[p.news_id] || []).push(p); });
+      setPolls(plMap);
     }
   };
   useEffect(() => { load(); }, [user]);
@@ -74,10 +90,16 @@ export default function News() {
       if (e) { toast.error("فشل رفع الصورة"); return; }
       imageUrl = supabase.storage.from("news").getPublicUrl(path).data.publicUrl;
     }
-    const { error } = await supabase.from("news").insert({ title: title.trim(), content: content.trim(), image_url: imageUrl, author_id: user.id });
+    const { data: ins, error } = await supabase.from("news").insert({ title: title.trim(), content: content.trim(), image_url: imageUrl, author_id: user.id }).select().single();
     if (error) { toast.error(error.message); return; }
+    // Optional poll
+    const cleanOpts = pollOpts.map(o => o.trim()).filter(Boolean);
+    if (pollQ.trim() && cleanOpts.length >= 2) {
+      const opts = cleanOpts.map((text, i) => ({ id: `o${i + 1}`, text }));
+      await supabase.from("news_polls").insert({ news_id: ins.id, question: pollQ.trim(), options: opts, created_by: user.id });
+    }
     toast.success("تم النشر");
-    setTitle(""); setContent(""); setImageFile(null); setShowCompose(false); load();
+    setTitle(""); setContent(""); setImageFile(null); setPollQ(""); setPollOpts(["", ""]); setShowCompose(false); load();
   };
 
   return (
@@ -95,6 +117,31 @@ export default function News() {
           <Input placeholder="العنوان" value={title} onChange={e => setTitle(e.target.value)} />
           <Textarea placeholder="المحتوى..." rows={5} value={content} onChange={e => setContent(e.target.value)} />
           <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] ?? null)} className="text-sm" />
+
+          <div className="rounded-2xl border border-dashed border-border p-3 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-bold">
+              <BarChart3 className="h-4 w-4 text-primary" /> إضافة استطلاع (اختياري)
+            </div>
+            <Input placeholder="سؤال الاستطلاع" value={pollQ} onChange={e => setPollQ(e.target.value)} />
+            {pollOpts.map((opt, i) => (
+              <div key={i} className="flex gap-2">
+                <Input placeholder={`خيار ${i + 1}`} value={opt} onChange={e => {
+                  const next = [...pollOpts]; next[i] = e.target.value; setPollOpts(next);
+                }} />
+                {pollOpts.length > 2 && (
+                  <Button variant="ghost" size="icon" onClick={() => setPollOpts(pollOpts.filter((_, j) => j !== i))}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            {pollOpts.length < 6 && (
+              <Button variant="outline" size="sm" onClick={() => setPollOpts([...pollOpts, ""])}>
+                <Plus className="h-3 w-3" /> إضافة خيار
+              </Button>
+            )}
+          </div>
+
           <div className="flex gap-2">
             <Button variant="gold" onClick={publishNews}>نشر</Button>
             <Button variant="ghost" onClick={() => setShowCompose(false)}>إلغاء</Button>
@@ -109,6 +156,7 @@ export default function News() {
           {news.map(n => {
             const rx = reactions[n.id] || { likes: 0, dislikes: 0 };
             const cms = comments[n.id] || [];
+            const nPolls = polls[n.id] || [];
             return (
               <article key={n.id} className="surface-card overflow-hidden">
                 {n.image_url && <img src={n.image_url} alt={n.title} className="w-full max-h-80 object-cover" />}
@@ -116,6 +164,10 @@ export default function News() {
                   <h2 className="font-black text-xl mb-2">{n.title}</h2>
                   <div className="text-xs text-muted-foreground mb-3">{formatDistanceToNow(new Date(n.created_at), { locale: arSA, addSuffix: true })}</div>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{n.content}</p>
+
+                  {nPolls.map((p: any) => (
+                    <Poll key={p.id} scope="news" pollId={p.id} question={p.question} options={p.options as any} />
+                  ))}
 
                   <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
                     <button onClick={() => react(n.id, "like")} className={cn("inline-flex items-center gap-1.5 px-3 h-9 rounded-xl text-sm font-bold transition-all", rx.mine === "like" ? "bg-success/15 text-success" : "hover:bg-muted")}>
