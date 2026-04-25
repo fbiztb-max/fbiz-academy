@@ -12,6 +12,8 @@ import { Loader2, Mail, Lock, User as UserIcon } from "lucide-react";
 import { z } from "zod";
 import logo from "@/assets/fbiz-logo.png";
 import FloatingContact from "@/components/FloatingContact";
+import { isNative, oauthRedirectUri } from "@/lib/platform";
+import { Browser } from "@capacitor/browser";
 
 const emailSchema = z.string().trim().email({ message: "بريد إلكتروني غير صحيح" }).max(255);
 const passwordSchema = z.string().min(6, { message: "كلمة المرور 6 أحرف على الأقل" }).max(72);
@@ -62,11 +64,31 @@ export default function Auth() {
 
   const handleGoogle = async () => {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) { toast.error("تعذر تسجيل الدخول عبر Google"); setLoading(false); return; }
-    if (result.redirected) return;
-    navigate("/");
+    try {
+      // داخل APK: نفتح صفحة تسجيل الدخول الويب الرسمية في متصفح النظام،
+      // ثم تتم العودة بالـ session تلقائياً عند فتح التطبيق مجدداً.
+      if (isNative()) {
+        await Browser.open({ url: `${oauthRedirectUri()}/auth?provider=google` });
+        setLoading(false);
+        return;
+      }
+      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: oauthRedirectUri() });
+      if (result.error) { toast.error("تعذر تسجيل الدخول عبر Google"); setLoading(false); return; }
+      if (result.redirected) return;
+      navigate("/");
+    } catch (e: any) {
+      toast.error("تعذر تسجيل الدخول عبر Google");
+      setLoading(false);
+    }
   };
+
+  // إذا فُتحت صفحة /auth?provider=google من تطبيق APK، نبدأ تدفق Google تلقائياً
+  // (هذه الصفحة ستكون داخل متصفح النظام حيث يعمل OAuth بشكل صحيح).
+  if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("provider") === "google" && !loading) {
+    setTimeout(() => {
+      lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    }, 50);
+  }
 
   return (
     <div className="min-h-screen flex bg-background" dir="rtl">

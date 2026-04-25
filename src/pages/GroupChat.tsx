@@ -11,6 +11,7 @@ import { arSA } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import Poll from "@/components/Poll";
+import ChatAttachment from "@/components/ChatAttachment";
 
 export default function GroupChat() {
   const { id } = useParams();
@@ -61,10 +62,14 @@ export default function GroupChat() {
   useEffect(() => {
     load();
     if (!id) return;
-    const ch = supabase.channel(`group-${id}`).on("postgres_changes",
-      { event: "INSERT", schema: "public", table: "group_messages", filter: `group_id=eq.${id}` },
-      () => load()
-    ).subscribe();
+    const ch = supabase.channel(`group-${id}`)
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "group_messages", filter: `group_id=eq.${id}` },
+        () => load())
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "group_polls", filter: `group_id=eq.${id}` },
+        () => load())
+      .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [id]);
 
@@ -106,31 +111,41 @@ export default function GroupChat() {
           </div>
 
           <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-3">
-            {polls.length > 0 && (
-              <div className="space-y-2 mb-2">
-                {polls.map(p => (
-                  <div key={p.id} className="bg-card rounded-2xl border border-border p-1">
-                    <Poll scope="group" pollId={p.id} question={p.question} options={p.options as any} />
+            {(() => {
+              // دمج الرسائل والاستطلاعات في تدفق واحد مرتب بالتاريخ
+              const timeline: Array<{ kind: "msg" | "poll"; at: string; data: any }> = [
+                ...messages.map(m => ({ kind: "msg" as const, at: m.created_at, data: m })),
+                ...polls.map(p => ({ kind: "poll" as const, at: p.created_at, data: p })),
+              ].sort((a, b) => a.at.localeCompare(b.at));
+              if (timeline.length === 0) {
+                return <div className="text-center text-muted-foreground text-sm mt-12">لا توجد رسائل بعد. ابدأ المحادثة!</div>;
+              }
+              return timeline.map(item => {
+                if (item.kind === "poll") {
+                  const p = item.data;
+                  return (
+                    <div key={`p-${p.id}`} className="bg-card rounded-2xl border border-border p-1 animate-fade-in">
+                      <Poll scope="group" pollId={p.id} question={p.question} options={p.options as any} />
+                    </div>
+                  );
+                }
+                const m = item.data;
+                const mine = m.user_id === user?.id;
+                return (
+                  <div key={m.id} className={cn("flex gap-2", mine && "flex-row-reverse")}>
+                    {m.profiles?.avatar_url ? <img src={m.profiles.avatar_url} className="h-8 w-8 rounded-full object-cover shrink-0" /> :
+                      <div className="h-8 w-8 rounded-full bg-gradient-gold flex items-center justify-center text-xs font-black text-primary-foreground shrink-0">{m.profiles?.full_name?.[0] || "؟"}</div>}
+                    <div className={cn("max-w-[70%] rounded-2xl p-3", mine ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-muted rounded-tr-none")}>
+                      {!mine && <div className="text-[10px] font-bold mb-1 opacity-80">{m.profiles?.full_name} #{m.profiles?.serial_id}</div>}
+                      {m.file_url
+                        ? <ChatAttachment url={m.file_url} name={m.content} />
+                        : <div className="text-sm whitespace-pre-wrap break-words">{m.content}</div>}
+                      <div className="text-[10px] opacity-60 mt-1">{formatDistanceToNow(new Date(m.created_at), { locale: arSA, addSuffix: true })}</div>
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-            {messages.length === 0 && polls.length === 0 ? (
-              <div className="text-center text-muted-foreground text-sm mt-12">لا توجد رسائل بعد. ابدأ المحادثة!</div>
-            ) : messages.map(m => {
-              const mine = m.user_id === user?.id;
-              return (
-                <div key={m.id} className={cn("flex gap-2", mine && "flex-row-reverse")}>
-                  {m.profiles?.avatar_url ? <img src={m.profiles.avatar_url} className="h-8 w-8 rounded-full object-cover shrink-0" /> :
-                    <div className="h-8 w-8 rounded-full bg-gradient-gold flex items-center justify-center text-xs font-black text-primary-foreground shrink-0">{m.profiles?.full_name?.[0] || "؟"}</div>}
-                  <div className={cn("max-w-[70%] rounded-2xl p-3", mine ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-muted rounded-tr-none")}>
-                    {!mine && <div className="text-[10px] font-bold mb-1 opacity-80">{m.profiles?.full_name} #{m.profiles?.serial_id}</div>}
-                    {m.file_url ? <a href={m.file_url} target="_blank" className="underline text-sm">📎 {m.content}</a> : <div className="text-sm whitespace-pre-wrap break-words">{m.content}</div>}
-                    <div className="text-[10px] opacity-60 mt-1">{formatDistanceToNow(new Date(m.created_at), { locale: arSA, addSuffix: true })}</div>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
             <div ref={bottomRef} />
           </div>
 
