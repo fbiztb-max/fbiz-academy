@@ -26,10 +26,17 @@ export default function GroupChat() {
     if (!id) return;
     const [{ data: g }, { data: ms }, { data: mem }] = await Promise.all([
       supabase.from("groups").select("*").eq("id", id).maybeSingle(),
-      supabase.from("group_messages").select("*, profiles(full_name, avatar_url, serial_id)").eq("group_id", id).order("created_at"),
-      supabase.from("group_members").select("user_id, profiles(full_name, avatar_url, serial_id)").eq("group_id", id),
+      supabase.from("group_messages").select("*").eq("group_id", id).order("created_at"),
+      supabase.from("group_members").select("user_id").eq("group_id", id),
     ]);
-    setGroup(g); setMessages(ms ?? []); setMembers(mem ?? []);
+    const userIds = Array.from(new Set([...(ms?.map(m => m.user_id) ?? []), ...(mem?.map(m => m.user_id) ?? [])]));
+    const { data: profs } = userIds.length
+      ? await supabase.from("profiles").select("user_id, full_name, avatar_url, serial_id").in("user_id", userIds)
+      : { data: [] as any[] };
+    const pMap = new Map((profs ?? []).map(p => [p.user_id, p]));
+    setGroup(g);
+    setMessages((ms ?? []).map(m => ({ ...m, profiles: pMap.get(m.user_id) })));
+    setMembers((mem ?? []).map(m => ({ ...m, profiles: pMap.get(m.user_id) })));
   };
 
   useEffect(() => {
