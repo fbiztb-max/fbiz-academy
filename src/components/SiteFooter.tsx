@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Youtube, Instagram } from "lucide-react";
+import { Youtube, Instagram, ShieldCheck } from "lucide-react";
 
 const SOCIALS = [
   {
@@ -55,12 +55,12 @@ export default function SiteFooter() {
         </div>
 
         <div className="text-[11px] text-muted-foreground text-center md:text-right leading-relaxed">
-          <div className="font-bold text-foreground">© {new Date().getFullYear()} أكاديمية FBiz — جميع الحقوق محفوظة.</div>
-          <div className="mt-1">
-            تابعة لقناة "فراس بزنس" — مرخّصة وفق أنظمة الدول العربية لحماية البيانات والمعاملات الإلكترونية.
-            {" "}
+          <div className="font-bold text-foreground">© {new Date().getFullYear()} أكاديمية FBiz</div>
+          <div className="mt-1 flex items-center gap-1.5 justify-center md:justify-start flex-wrap">
+            <ShieldCheck className="h-3 w-3 text-primary" />
+            <span>بياناتك محمية ومشفّرة لدينا.</span>
             <Link to="/terms" className="text-primary hover:underline">الشروط</Link>
-            {" · "}
+            <span>·</span>
             <Link to="/privacy" className="text-primary hover:underline">الخصوصية</Link>
           </div>
         </div>
