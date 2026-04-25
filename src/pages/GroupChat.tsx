@@ -106,7 +106,16 @@ export default function GroupChat() {
           </div>
 
           <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-3">
-            {messages.length === 0 ? (
+            {polls.length > 0 && (
+              <div className="space-y-2 mb-2">
+                {polls.map(p => (
+                  <div key={p.id} className="bg-card rounded-2xl border border-border p-1">
+                    <Poll scope="group" pollId={p.id} question={p.question} options={p.options as any} />
+                  </div>
+                ))}
+              </div>
+            )}
+            {messages.length === 0 && polls.length === 0 ? (
               <div className="text-center text-muted-foreground text-sm mt-12">لا توجد رسائل بعد. ابدأ المحادثة!</div>
             ) : messages.map(m => {
               const mine = m.user_id === user?.id;
@@ -125,9 +134,37 @@ export default function GroupChat() {
             <div ref={bottomRef} />
           </div>
 
+          {showPoll && (
+            <div className="border-t border-border p-3 space-y-2 bg-muted/30">
+              <Input placeholder="سؤال الاستطلاع" value={pollQ} onChange={e => setPollQ(e.target.value)} />
+              {pollOpts.map((opt, i) => (
+                <div key={i} className="flex gap-2">
+                  <Input placeholder={`خيار ${i + 1}`} value={opt} onChange={e => {
+                    const next = [...pollOpts]; next[i] = e.target.value; setPollOpts(next);
+                  }} />
+                  {pollOpts.length > 2 && (
+                    <Button variant="ghost" size="icon" onClick={() => setPollOpts(pollOpts.filter((_, j) => j !== i))}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <div className="flex gap-2">
+                {pollOpts.length < 6 && (
+                  <Button variant="outline" size="sm" onClick={() => setPollOpts([...pollOpts, ""])}>
+                    <Plus className="h-3 w-3" /> خيار
+                  </Button>
+                )}
+                <Button variant="gold" size="sm" onClick={createPoll}>نشر الاستطلاع</Button>
+                <Button variant="ghost" size="sm" onClick={() => setShowPoll(false)}>إلغاء</Button>
+              </div>
+            </div>
+          )}
+
           <div className="p-3 border-t border-border flex gap-2">
             <input ref={fileRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && sendFile(e.target.files[0])} />
-            <Button variant="ghost" size="icon" onClick={() => fileRef.current?.click()}><Paperclip className="h-4 w-4"/></Button>
+            <Button variant="ghost" size="icon" onClick={() => fileRef.current?.click()} title="إرفاق ملف"><Paperclip className="h-4 w-4"/></Button>
+            <Button variant="ghost" size="icon" onClick={() => setShowPoll(s => !s)} title="إنشاء استطلاع"><BarChart3 className="h-4 w-4"/></Button>
             <Input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="اكتب رسالة..." />
             <Button variant="gold" size="icon" onClick={send}><Send className="h-4 w-4"/></Button>
           </div>
