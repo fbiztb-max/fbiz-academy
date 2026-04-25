@@ -17,6 +17,7 @@ export default function News() {
   const [news, setNews] = useState<any[]>([]);
   const [reactions, setReactions] = useState<Record<string, { likes: number; dislikes: number; mine?: string }>>({});
   const [comments, setComments] = useState<Record<string, any[]>>({});
+  const [polls, setPolls] = useState<Record<string, any[]>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [newComment, setNewComment] = useState("");
   // admin compose
@@ -24,6 +25,8 @@ export default function News() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [pollQ, setPollQ] = useState("");
+  const [pollOpts, setPollOpts] = useState<string[]>(["", ""]);
 
   const load = async () => {
     const { data } = await supabase.from("news").select("*").order("created_at", { ascending: false });
