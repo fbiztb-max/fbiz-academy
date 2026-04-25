@@ -33,9 +33,10 @@ export default function News() {
     setNews(data ?? []);
     if (data?.length) {
       const ids = data.map(n => n.id);
-      const [{ data: rxs }, { data: cms }] = await Promise.all([
+      const [{ data: rxs }, { data: cms }, { data: pls }] = await Promise.all([
         supabase.from("news_reactions").select("news_id, user_id, reaction").in("news_id", ids),
         supabase.from("news_comments").select("*").in("news_id", ids).order("created_at"),
+        supabase.from("news_polls").select("*").in("news_id", ids),
       ]);
       const cmUserIds = Array.from(new Set((cms ?? []).map((c: any) => c.user_id)));
       const { data: profs } = cmUserIds.length
@@ -55,6 +56,9 @@ export default function News() {
         (cmMap[c.news_id] = cmMap[c.news_id] || []).push(enriched);
       });
       setComments(cmMap);
+      const plMap: any = {};
+      (pls ?? []).forEach((p: any) => { (plMap[p.news_id] = plMap[p.news_id] || []).push(p); });
+      setPolls(plMap);
     }
   };
   useEffect(() => { load(); }, [user]);
@@ -86,10 +90,16 @@ export default function News() {
       if (e) { toast.error("فشل رفع الصورة"); return; }
       imageUrl = supabase.storage.from("news").getPublicUrl(path).data.publicUrl;
     }
-    const { error } = await supabase.from("news").insert({ title: title.trim(), content: content.trim(), image_url: imageUrl, author_id: user.id });
+    const { data: ins, error } = await supabase.from("news").insert({ title: title.trim(), content: content.trim(), image_url: imageUrl, author_id: user.id }).select().single();
     if (error) { toast.error(error.message); return; }
+    // Optional poll
+    const cleanOpts = pollOpts.map(o => o.trim()).filter(Boolean);
+    if (pollQ.trim() && cleanOpts.length >= 2) {
+      const opts = cleanOpts.map((text, i) => ({ id: `o${i + 1}`, text }));
+      await supabase.from("news_polls").insert({ news_id: ins.id, question: pollQ.trim(), options: opts, created_by: user.id });
+    }
     toast.success("تم النشر");
-    setTitle(""); setContent(""); setImageFile(null); setShowCompose(false); load();
+    setTitle(""); setContent(""); setImageFile(null); setPollQ(""); setPollOpts(["", ""]); setShowCompose(false); load();
   };
 
   return (
