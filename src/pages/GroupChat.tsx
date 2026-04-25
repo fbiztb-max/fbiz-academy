@@ -19,16 +19,21 @@ export default function GroupChat() {
   const [group, setGroup] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
+  const [polls, setPolls] = useState<any[]>([]);
   const [text, setText] = useState("");
+  const [showPoll, setShowPoll] = useState(false);
+  const [pollQ, setPollQ] = useState("");
+  const [pollOpts, setPollOpts] = useState<string[]>(["", ""]);
   const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const load = async () => {
     if (!id) return;
-    const [{ data: g }, { data: ms }, { data: mem }] = await Promise.all([
+    const [{ data: g }, { data: ms }, { data: mem }, { data: pls }] = await Promise.all([
       supabase.from("groups").select("*").eq("id", id).maybeSingle(),
       supabase.from("group_messages").select("*").eq("group_id", id).order("created_at"),
       supabase.from("group_members").select("user_id").eq("group_id", id),
+      supabase.from("group_polls").select("*").eq("group_id", id).order("created_at", { ascending: false }),
     ]);
     const userIds = Array.from(new Set([...(ms?.map(m => m.user_id) ?? []), ...(mem?.map(m => m.user_id) ?? [])]));
     const { data: profs } = userIds.length
@@ -38,6 +43,19 @@ export default function GroupChat() {
     setGroup(g);
     setMessages((ms ?? []).map(m => ({ ...m, profiles: pMap.get(m.user_id) })));
     setMembers((mem ?? []).map(m => ({ ...m, profiles: pMap.get(m.user_id) })));
+    setPolls(pls ?? []);
+  };
+
+  const createPoll = async () => {
+    if (!user || !id) return;
+    const cleanOpts = pollOpts.map(o => o.trim()).filter(Boolean);
+    if (!pollQ.trim() || cleanOpts.length < 2) return toast.error("اكتب السؤال وخيارَين على الأقل");
+    const opts = cleanOpts.map((t, i) => ({ id: `o${i + 1}`, text: t }));
+    const { error } = await supabase.from("group_polls").insert({
+      group_id: id, question: pollQ.trim(), options: opts, created_by: user.id,
+    });
+    if (error) return toast.error(error.message);
+    setPollQ(""); setPollOpts(["", ""]); setShowPoll(false); load();
   };
 
   useEffect(() => {
