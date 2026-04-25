@@ -31,8 +31,13 @@ export default function News() {
       const ids = data.map(n => n.id);
       const [{ data: rxs }, { data: cms }] = await Promise.all([
         supabase.from("news_reactions").select("news_id, user_id, reaction").in("news_id", ids),
-        supabase.from("news_comments").select("*, profiles(full_name, avatar_url, serial_id)").in("news_id", ids).order("created_at"),
+        supabase.from("news_comments").select("*").in("news_id", ids).order("created_at"),
       ]);
+      const cmUserIds = Array.from(new Set((cms ?? []).map((c: any) => c.user_id)));
+      const { data: profs } = cmUserIds.length
+        ? await supabase.from("profiles").select("user_id, full_name, avatar_url, serial_id").in("user_id", cmUserIds)
+        : { data: [] as any[] };
+      const pMap = new Map((profs ?? []).map(p => [p.user_id, p]));
       const rxMap: any = {};
       ids.forEach(id => rxMap[id] = { likes: 0, dislikes: 0 });
       (rxs ?? []).forEach((r: any) => {
@@ -41,7 +46,10 @@ export default function News() {
       });
       setReactions(rxMap);
       const cmMap: any = {};
-      (cms ?? []).forEach((c: any) => { (cmMap[c.news_id] = cmMap[c.news_id] || []).push(c); });
+      (cms ?? []).forEach((c: any) => {
+        const enriched = { ...c, profiles: pMap.get(c.user_id) };
+        (cmMap[c.news_id] = cmMap[c.news_id] || []).push(enriched);
+      });
       setComments(cmMap);
     }
   };
