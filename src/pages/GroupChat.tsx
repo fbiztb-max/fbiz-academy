@@ -62,10 +62,14 @@ export default function GroupChat() {
   useEffect(() => {
     load();
     if (!id) return;
-    const ch = supabase.channel(`group-${id}`).on("postgres_changes",
-      { event: "INSERT", schema: "public", table: "group_messages", filter: `group_id=eq.${id}` },
-      () => load()
-    ).subscribe();
+    const ch = supabase.channel(`group-${id}`)
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "group_messages", filter: `group_id=eq.${id}` },
+        () => load())
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "group_polls", filter: `group_id=eq.${id}` },
+        () => load())
+      .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [id]);
 
