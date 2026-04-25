@@ -117,6 +117,31 @@ export default function News() {
           <Input placeholder="العنوان" value={title} onChange={e => setTitle(e.target.value)} />
           <Textarea placeholder="المحتوى..." rows={5} value={content} onChange={e => setContent(e.target.value)} />
           <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] ?? null)} className="text-sm" />
+
+          <div className="rounded-2xl border border-dashed border-border p-3 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-bold">
+              <BarChart3 className="h-4 w-4 text-primary" /> إضافة استطلاع (اختياري)
+            </div>
+            <Input placeholder="سؤال الاستطلاع" value={pollQ} onChange={e => setPollQ(e.target.value)} />
+            {pollOpts.map((opt, i) => (
+              <div key={i} className="flex gap-2">
+                <Input placeholder={`خيار ${i + 1}`} value={opt} onChange={e => {
+                  const next = [...pollOpts]; next[i] = e.target.value; setPollOpts(next);
+                }} />
+                {pollOpts.length > 2 && (
+                  <Button variant="ghost" size="icon" onClick={() => setPollOpts(pollOpts.filter((_, j) => j !== i))}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            {pollOpts.length < 6 && (
+              <Button variant="outline" size="sm" onClick={() => setPollOpts([...pollOpts, ""])}>
+                <Plus className="h-3 w-3" /> إضافة خيار
+              </Button>
+            )}
+          </div>
+
           <div className="flex gap-2">
             <Button variant="gold" onClick={publishNews}>نشر</Button>
             <Button variant="ghost" onClick={() => setShowCompose(false)}>إلغاء</Button>
@@ -131,6 +156,7 @@ export default function News() {
           {news.map(n => {
             const rx = reactions[n.id] || { likes: 0, dislikes: 0 };
             const cms = comments[n.id] || [];
+            const nPolls = polls[n.id] || [];
             return (
               <article key={n.id} className="surface-card overflow-hidden">
                 {n.image_url && <img src={n.image_url} alt={n.title} className="w-full max-h-80 object-cover" />}
@@ -138,6 +164,10 @@ export default function News() {
                   <h2 className="font-black text-xl mb-2">{n.title}</h2>
                   <div className="text-xs text-muted-foreground mb-3">{formatDistanceToNow(new Date(n.created_at), { locale: arSA, addSuffix: true })}</div>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{n.content}</p>
+
+                  {nPolls.map((p: any) => (
+                    <Poll key={p.id} scope="news" pollId={p.id} question={p.question} options={p.options as any} />
+                  ))}
 
                   <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
                     <button onClick={() => react(n.id, "like")} className={cn("inline-flex items-center gap-1.5 px-3 h-9 rounded-xl text-sm font-bold transition-all", rx.mine === "like" ? "bg-success/15 text-success" : "hover:bg-muted")}>
