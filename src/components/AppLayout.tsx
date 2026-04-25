@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import Brand from "@/components/Brand";
 import SiteFooter from "@/components/SiteFooter";
 import FloatingContact from "@/components/FloatingContact";
+import { useNativeNotifications } from "@/hooks/useNativeNotifications";
 
 const userNav = [
   { to: "/", icon: LayoutDashboard, label: "اللوحة الرئيسية" },
@@ -43,6 +44,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unread, setUnread] = useState(0);
+  useNativeNotifications();
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
