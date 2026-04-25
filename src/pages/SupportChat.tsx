@@ -117,7 +117,11 @@ export default function SupportChat() {
                      : "bg-muted text-foreground rounded-bl-md border border-border/50"
                 }`}>
                   {!me && <div className="text-[10px] font-black mb-0.5 text-primary">المشرف</div>}
-                  {m.content}
+                  {m.file_url ? (
+                    <a href={m.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 underline">
+                      <FileIcon className="h-4 w-4" /> {m.content || "ملف مرفق"}
+                    </a>
+                  ) : m.content}
                   <div className={`text-[10px] mt-1 ${me ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                     {new Date(m.created_at).toLocaleString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
                   </div>
@@ -128,6 +132,10 @@ export default function SupportChat() {
           <div ref={endRef} />
         </div>
         <div className="border-t border-border p-3 flex gap-2">
+          <input ref={fileRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && sendFile(e.target.files[0])} />
+          <Button variant="ghost" size="icon" onClick={() => fileRef.current?.click()} className="h-11 w-11 shrink-0" title="إرفاق ملف">
+            <Paperclip className="h-4 w-4" />
+          </Button>
           <Input value={text} onChange={e => setText(e.target.value)}
             onKeyDown={e => e.key === "Enter" && send()}
             placeholder="اكتب رسالتك للمشرفين..." className="h-11" />
