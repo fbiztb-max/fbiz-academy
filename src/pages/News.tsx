@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ThumbsUp, ThumbsDown, MessageCircle, Send } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageCircle, Send, BarChart3, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { arSA } from "date-fns/locale";
+import Poll from "@/components/Poll";
 
 export default function News() {
   const { user, isAdmin } = useAuth();
