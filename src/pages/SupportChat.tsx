@@ -5,8 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Send, Headphones, ShieldCheck, Paperclip, FileIcon } from "lucide-react";
+import { Send, Headphones, ShieldCheck, Paperclip } from "lucide-react";
 import { playSound } from "@/hooks/useSound";
+import ChatAttachment from "@/components/ChatAttachment";
 
 interface Msg {
   id: string;
@@ -118,9 +119,7 @@ export default function SupportChat() {
                 }`}>
                   {!me && <div className="text-[10px] font-black mb-0.5 text-primary">المشرف</div>}
                   {m.file_url ? (
-                    <a href={m.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 underline">
-                      <FileIcon className="h-4 w-4" /> {m.content || "ملف مرفق"}
-                    </a>
+                    <ChatAttachment url={m.file_url} name={m.content} />
                   ) : m.content}
                   <div className={`text-[10px] mt-1 ${me ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                     {new Date(m.created_at).toLocaleString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
