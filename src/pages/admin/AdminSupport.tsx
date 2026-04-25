@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Search, Send, Inbox } from "lucide-react";
+import { Search, Send, Inbox, Paperclip, FileIcon } from "lucide-react";
 import { playSound } from "@/hooks/useSound";
 
 interface Thread {
@@ -19,6 +19,7 @@ interface Thread {
 interface Msg {
   id: string; user_id: string; sender_id: string;
   sender_role: "user" | "admin"; content: string | null;
+  file_url: string | null;
   created_at: string; is_read: boolean;
 }
 
@@ -80,6 +81,23 @@ export default function AdminSupport() {
   }, [active?.user_id]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs.length]);
+
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const sendFile = async (file: File) => {
+    if (!active || !user) return;
+    if (file.size > 10 * 1024 * 1024) return toast.error("الحد الأقصى 10MB");
+    const path = `${active.user_id}/${Date.now()}-${file.name}`;
+    const { error: upErr } = await supabase.storage.from("support-files").upload(path, file);
+    if (upErr) return toast.error("فشل رفع الملف");
+    const { data: signed } = await supabase.storage.from("support-files").createSignedUrl(path, 60 * 60 * 24 * 30);
+    const { error } = await supabase.from("support_messages").insert({
+      user_id: active.user_id, sender_id: user.id, sender_role: "admin",
+      content: file.name, file_url: signed?.signedUrl ?? null,
+    });
+    if (error) return toast.error(error.message);
+    playSound("send");
+  };
 
   const send = async () => {
     if (!active || !user || !text.trim()) return;
