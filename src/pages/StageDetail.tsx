@@ -94,6 +94,19 @@ export default function StageDetail() {
           if (upErr) { toast.error("فشل رفع الملف"); return; }
           hasManual = true;
           submittedAnswers.push({ question_id: q.id, type: "file", file_url: path, points: q.points, awarded: null });
+        } else if (q.type === "simulation") {
+          if (!a.sim) { toast.error(`أكمل المحاكاة (سؤال ${questions.indexOf(q) + 1})`); return; }
+          const awarded = Math.round(((Number(q.points) || 0) * a.sim.normalized) / 100);
+          autoScore += awarded;
+          submittedAnswers.push({
+            question_id: q.id,
+            type: "simulation",
+            performance_score: a.sim.result.performanceScore,
+            decision_quality_index: a.sim.result.decisionQualityIndex,
+            feedback: a.sim.result.feedback,
+            points: q.points,
+            awarded,
+          });
         }
       }
 
