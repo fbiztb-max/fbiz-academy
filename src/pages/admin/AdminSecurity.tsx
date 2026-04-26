@@ -259,7 +259,7 @@ export default function AdminSecurity() {
 
           <h2 className="text-lg font-black mb-2">سجلات الموافقة ({reportConsents.length})</h2>
           <table className="w-full text-xs border-collapse mb-6">
-            <thead><tr className="bg-gray-200"><th className="border p-2">التاريخ</th><th className="border p-2">شروط</th><th className="border p-2">خصوصية</th><th className="border p-2">إقرار</th></tr></thead>
+            <thead><tr className="bg-muted"><th className="border p-2">التاريخ</th><th className="border p-2">شروط</th><th className="border p-2">خصوصية</th><th className="border p-2">إقرار</th></tr></thead>
             <tbody>
               {reportConsents.map((c, i) => (
                 <tr key={i}><td className="border p-2">{new Date(c.created_at).toLocaleString("ar")}</td><td className="border p-2">{c.terms_version}</td><td className="border p-2">{c.privacy_version}</td><td className="border p-2">{c.disclaimer_version}</td></tr>
@@ -269,7 +269,7 @@ export default function AdminSecurity() {
 
           <h2 className="text-lg font-black mb-2">جميع التفاعلات ({reportAudits.length})</h2>
           <table className="w-full text-xs border-collapse">
-            <thead><tr className="bg-gray-200"><th className="border p-2">الوقت</th><th className="border p-2">الإجراء</th><th className="border p-2">المورد</th><th className="border p-2">الجلسة</th></tr></thead>
+            <thead><tr className="bg-muted"><th className="border p-2">الوقت</th><th className="border p-2">الإجراء</th><th className="border p-2">المورد</th><th className="border p-2">الجلسة</th></tr></thead>
             <tbody>
               {reportAudits.map((a) => (
                 <tr key={a.id}><td className="border p-2">{new Date(a.created_at).toLocaleString("ar")}</td><td className="border p-2">{a.action_type}</td><td className="border p-2">{a.resource || "—"}</td><td className="border p-2 font-mono">{a.session_id.slice(0,8)}</td></tr>
