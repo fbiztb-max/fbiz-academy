@@ -11,10 +11,12 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Upload, Youtube, Sparkles, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Confetti from "@/components/Confetti";
+import SimulationPlayer from "@/features/simulation/SimulationPlayer";
+import { SimulationQuestion, SimulationResult } from "@/features/simulation/types";
 
 const ConfettiBurst = () => <Confetti trigger={Date.now()} />;
 
-type QType = "mcq" | "truefalse" | "text" | "file";
+type QType = "mcq" | "truefalse" | "text" | "file" | "simulation";
 interface Question {
   id: string;
   type: QType;
@@ -22,6 +24,8 @@ interface Question {
   options?: { id: string; text: string }[] | null;
   correct_answer?: string | null;
   points: number;
+  scenario?: string;
+  steps?: SimulationQuestion["steps"];
 }
 
 export default function StageDetail() {
@@ -30,7 +34,7 @@ export default function StageDetail() {
   const navigate = useNavigate();
   const [stage, setStage] = useState<any>(null);
   const [previousSub, setPreviousSub] = useState<any>(null);
-  const [answers, setAnswers] = useState<Record<string, { value?: string; file?: File | null }>>({});
+  const [answers, setAnswers] = useState<Record<string, { value?: string; file?: File | null; sim?: { result: SimulationResult; normalized: number } }>>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<null | { passed: boolean; score: number; maxScore: number; pending?: boolean }>(null);
 
@@ -90,6 +94,19 @@ export default function StageDetail() {
           if (upErr) { toast.error("فشل رفع الملف"); return; }
           hasManual = true;
           submittedAnswers.push({ question_id: q.id, type: "file", file_url: path, points: q.points, awarded: null });
+        } else if (q.type === "simulation") {
+          if (!a.sim) { toast.error(`أكمل المحاكاة (سؤال ${questions.indexOf(q) + 1})`); return; }
+          const awarded = Math.round(((Number(q.points) || 0) * a.sim.normalized) / 100);
+          autoScore += awarded;
+          submittedAnswers.push({
+            question_id: q.id,
+            type: "simulation",
+            performance_score: a.sim.result.performanceScore,
+            decision_quality_index: a.sim.result.decisionQualityIndex,
+            feedback: a.sim.result.feedback,
+            points: q.points,
+            awarded,
+          });
         }
       }
 
@@ -225,6 +242,26 @@ export default function StageDetail() {
                     <span className="text-sm font-medium">{a.file?.name || "اضغط لاختيار ملف"}</span>
                     <input type="file" accept=".pdf,image/*" onChange={e => setAnswers({ ...answers, [q.id]: { file: e.target.files?.[0] ?? null } })} className="hidden" />
                   </label>
+                </div>
+              )}
+
+              {q.type === "simulation" && (
+                <div className="mt-4">
+                  {a.sim ? (
+                    <div className="rounded-xl border-2 border-primary/40 bg-primary/5 p-4 text-sm">
+                      <div className="font-black mb-1">✓ اكتملت المحاكاة</div>
+                      <div className="text-xs text-muted-foreground">
+                        مؤشر الأداء: {a.sim.result.performanceScore} • جودة القرارات: {a.sim.result.decisionQualityIndex}
+                      </div>
+                    </div>
+                  ) : (
+                    <SimulationPlayer
+                      question={q as unknown as SimulationQuestion}
+                      onComplete={(result, normalized) =>
+                        setAnswers((prev) => ({ ...prev, [q.id]: { sim: { result, normalized } } }))
+                      }
+                    />
+                  )}
                 </div>
               )}
             </motion.div>

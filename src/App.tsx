@@ -32,6 +32,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminSupport from "./pages/admin/AdminSupport";
 import AdminAdmins from "./pages/admin/AdminAdmins";
+import AdminSecurity from "./pages/admin/AdminSecurity";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
@@ -75,6 +76,7 @@ const App = () => (
                 <Route path="/admin/news" element={<ProtectedRoute adminOnly><AdminNews /></ProtectedRoute>} />
                 <Route path="/admin/groups" element={<ProtectedRoute adminOnly><AdminGroups /></ProtectedRoute>} />
                 <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsers /></ProtectedRoute>} />
+                <Route path="/admin/security" element={<ProtectedRoute adminOnly><AdminSecurity /></ProtectedRoute>} />
                 <Route path="/admin/admins" element={<ProtectedRoute adminOnly><AdminAdmins /></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />

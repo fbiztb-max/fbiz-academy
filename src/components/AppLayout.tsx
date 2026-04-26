@@ -5,7 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, Layers, History, MessageSquare, Newspaper, Users, Bell,
-  User as UserIcon, Settings, LogOut, Shield, Menu, X, Moon, Sun, Headphones, Crown
+  User as UserIcon, Settings, LogOut, Shield, Menu, X, Moon, Sun, Headphones, Crown, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ const adminNav = [
   { to: "/admin/news", icon: Newspaper, label: "إدارة الأخبار" },
   { to: "/admin/groups", icon: Users, label: "إدارة المجموعات" },
   { to: "/admin/users", icon: Users, label: "إدارة المستخدمين" },
+  { to: "/admin/security", icon: ShieldCheck, label: "الأمان والامتثال" },
 ];
 
 const OWNER_EMAIL = "ferrrras2356@gmail.com";

@@ -7,8 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Trash2, Edit, GripVertical } from "lucide-react";
+import SimulationEditor from "@/features/simulation/SimulationEditor";
+import { newSimulationQuestion, SimulationQuestion, detectRealismViolations } from "@/features/simulation/types";
 
-type QType = "mcq" | "truefalse" | "text" | "file";
+type QType = "mcq" | "truefalse" | "text" | "file" | "simulation";
 interface Question {
   id: string;
   type: QType;
@@ -16,20 +18,28 @@ interface Question {
   options?: { id: string; text: string }[] | null;
   correct_answer?: string | null;
   points: number;
+  // simulation extension fields (only used when type === "simulation")
+  scenario?: string;
+  steps?: SimulationQuestion["steps"];
 }
 
-const newQuestion = (type: QType = "mcq"): Question => ({
-  id: crypto.randomUUID(),
-  type,
-  text: "",
-  options: type === "mcq"
-    ? [{ id: "a", text: "" }, { id: "b", text: "" }]
-    : type === "truefalse"
-      ? [{ id: "true", text: "صح" }, { id: "false", text: "خطأ" }]
-      : null,
-  correct_answer: type === "mcq" ? "a" : type === "truefalse" ? "true" : null,
-  points: type === "mcq" || type === "truefalse" ? 1 : 10,
-});
+const newQuestion = (type: QType = "mcq"): Question => {
+  if (type === "simulation") {
+    return newSimulationQuestion() as unknown as Question;
+  }
+  return {
+    id: crypto.randomUUID(),
+    type,
+    text: "",
+    options: type === "mcq"
+      ? [{ id: "a", text: "" }, { id: "b", text: "" }]
+      : type === "truefalse"
+        ? [{ id: "true", text: "صح" }, { id: "false", text: "خطأ" }]
+        : null,
+    correct_answer: type === "mcq" ? "a" : type === "truefalse" ? "true" : null,
+    points: type === "mcq" || type === "truefalse" ? 1 : 10,
+  };
+};
 
 export default function AdminStages() {
   const [stages, setStages] = useState<any[]>([]);
@@ -64,10 +74,31 @@ export default function AdminStages() {
         if (!q.options || q.options.length < 2) return toast.error("سؤال الاختيار يحتاج خيارين على الأقل");
         if (!q.correct_answer) return toast.error("حدد الإجابة الصحيحة لكل سؤال اختيار");
       }
+      if (q.type === "simulation") {
+        const sim = q as unknown as SimulationQuestion;
+        if (!sim.scenario?.trim()) return toast.error("أضف وصفاً للسيناريو الافتراضي");
+        if (!sim.steps || sim.steps.length === 0) return toast.error("أضف موقفاً واحداً على الأقل");
+        for (const s of sim.steps) {
+          if (!s.prompt.trim()) return toast.error("كل موقف يحتاج نصاً");
+          if (s.decisions.length < 2) return toast.error("كل موقف يحتاج قرارين على الأقل");
+          if (s.decisions.some((d) => !d.text.trim())) return toast.error("اكتب نص كل قرار");
+        }
+        const v = [
+          ...detectRealismViolations(sim.scenario),
+          ...detectRealismViolations(sim.text),
+          ...sim.steps.flatMap((s) => [
+            ...detectRealismViolations(s.prompt),
+            ...s.decisions.flatMap((d) => [...detectRealismViolations(d.text), ...detectRealismViolations(d.rationale)]),
+          ]),
+        ];
+        if (v.length) return toast.error("يحتوي السيناريو على مصطلحات واقعية محظورة: " + [...new Set(v)].join("، "));
+      }
     }
 
-    // Sync legacy fields with first question for backward compatibility
+    // Sync legacy fields with first non-simulation question for backward compatibility.
+    // Simulation is stored only inside `questions` JSONB; legacy mirror falls back to "text".
     const first = qs[0];
+    const isSim = first.type === "simulation";
     const payload: any = {
       order_index: editing.order_index,
       title: editing.title,
@@ -76,10 +107,10 @@ export default function AdminStages() {
       passing_score: editing.passing_score,
       is_published: editing.is_published,
       questions: qs,
-      question_type: first.type,
-      question_text: first.text,
-      options: first.options,
-      correct_answer: first.correct_answer,
+      question_type: isSim ? "text" : first.type,
+      question_text: first.text || "محاكاة تعليمية",
+      options: isSim ? null : first.options,
+      correct_answer: isSim ? null : first.correct_answer,
     };
 
     const { error } = editing.id
@@ -178,6 +209,7 @@ export default function AdminStages() {
                         <option value="truefalse">صح/خطأ</option>
                         <option value="text">نص مفتوح</option>
                         <option value="file">رفع ملف</option>
+                        <option value="simulation">محاكاة تعليمية</option>
                       </select>
                     </div>
                     <div>
@@ -194,7 +226,14 @@ export default function AdminStages() {
                     </div>
                   </div>
 
-                  <div><Label>نص السؤال</Label><Textarea rows={2} value={q.text} onChange={e => updateQ(idx, { text: e.target.value })}/></div>
+                  {q.type === "simulation" ? (
+                    <SimulationEditor
+                      value={q as unknown as SimulationQuestion}
+                      onChange={(next) => updateQ(idx, next as unknown as Partial<Question>)}
+                    />
+                  ) : (
+                    <div><Label>نص السؤال</Label><Textarea rows={2} value={q.text} onChange={e => updateQ(idx, { text: e.target.value })}/></div>
+                  )}
 
                   {q.type === "mcq" && (
                     <div className="space-y-2">
