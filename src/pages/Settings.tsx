@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { isMuted, setMuted, playSound } from "@/hooks/useSound";
+import DataDeletionPanel from "@/compliance/DataDeletionPanel";
 
 export default function Settings() {
   const { theme, toggle } = useTheme();
@@ -82,6 +83,10 @@ export default function Settings() {
           </div>
           <Button variant="gold" onClick={changePassword} disabled={saving}>{saving ? "جاري الحفظ..." : "تحديث كلمة المرور"}</Button>
         </div>
+      </div>
+
+      <div className="mt-4">
+        <DataDeletionPanel />
       </div>
     </AppLayout>
   );
