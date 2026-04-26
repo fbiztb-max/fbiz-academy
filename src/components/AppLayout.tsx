@@ -34,6 +34,7 @@ const adminNav = [
   { to: "/admin/news", icon: Newspaper, label: "إدارة الأخبار" },
   { to: "/admin/groups", icon: Users, label: "إدارة المجموعات" },
   { to: "/admin/users", icon: Users, label: "إدارة المستخدمين" },
+  { to: "/admin/security", icon: ShieldCheck, label: "الأمان والامتثال" },
 ];
 
 const OWNER_EMAIL = "ferrrras2356@gmail.com";
