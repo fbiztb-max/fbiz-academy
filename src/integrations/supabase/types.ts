@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          resource: string | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          resource?: string | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          resource?: string | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_deletion_requests: {
+        Row: {
+          created_at: string
+          id: string
+          processed_at: string | null
+          processed_by: string | null
+          reason: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
@@ -547,6 +607,48 @@ export type Database = {
           is_read?: boolean
           sender_id?: string
           sender_role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_consents: {
+        Row: {
+          accepted_disclaimer: boolean
+          accepted_privacy: boolean
+          accepted_terms: boolean
+          created_at: string
+          disclaimer_version: string
+          id: string
+          ip_address: string | null
+          privacy_version: string
+          terms_version: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_disclaimer?: boolean
+          accepted_privacy?: boolean
+          accepted_terms?: boolean
+          created_at?: string
+          disclaimer_version: string
+          id?: string
+          ip_address?: string | null
+          privacy_version: string
+          terms_version: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_disclaimer?: boolean
+          accepted_privacy?: boolean
+          accepted_terms?: boolean
+          created_at?: string
+          disclaimer_version?: string
+          id?: string
+          ip_address?: string | null
+          privacy_version?: string
+          terms_version?: string
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: []
