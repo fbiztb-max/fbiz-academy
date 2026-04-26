@@ -84,6 +84,10 @@ export default function Settings() {
           <Button variant="gold" onClick={changePassword} disabled={saving}>{saving ? "جاري الحفظ..." : "تحديث كلمة المرور"}</Button>
         </div>
       </div>
+
+      <div className="mt-4">
+        <DataDeletionPanel />
+      </div>
     </AppLayout>
   );
 }
