@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { isMuted, setMuted, playSound } from "@/hooks/useSound";
+import DataDeletionPanel from "@/compliance/DataDeletionPanel";
 
 export default function Settings() {
   const { theme, toggle } = useTheme();
