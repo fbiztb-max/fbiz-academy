@@ -7,8 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Trash2, Edit, GripVertical } from "lucide-react";
+import SimulationEditor from "@/features/simulation/SimulationEditor";
+import { newSimulationQuestion, SimulationQuestion, detectRealismViolations } from "@/features/simulation/types";
 
-type QType = "mcq" | "truefalse" | "text" | "file";
+type QType = "mcq" | "truefalse" | "text" | "file" | "simulation";
 interface Question {
   id: string;
   type: QType;
@@ -16,20 +18,28 @@ interface Question {
   options?: { id: string; text: string }[] | null;
   correct_answer?: string | null;
   points: number;
+  // simulation extension fields (only used when type === "simulation")
+  scenario?: string;
+  steps?: SimulationQuestion["steps"];
 }
 
-const newQuestion = (type: QType = "mcq"): Question => ({
-  id: crypto.randomUUID(),
-  type,
-  text: "",
-  options: type === "mcq"
-    ? [{ id: "a", text: "" }, { id: "b", text: "" }]
-    : type === "truefalse"
-      ? [{ id: "true", text: "صح" }, { id: "false", text: "خطأ" }]
-      : null,
-  correct_answer: type === "mcq" ? "a" : type === "truefalse" ? "true" : null,
-  points: type === "mcq" || type === "truefalse" ? 1 : 10,
-});
+const newQuestion = (type: QType = "mcq"): Question => {
+  if (type === "simulation") {
+    return newSimulationQuestion() as unknown as Question;
+  }
+  return {
+    id: crypto.randomUUID(),
+    type,
+    text: "",
+    options: type === "mcq"
+      ? [{ id: "a", text: "" }, { id: "b", text: "" }]
+      : type === "truefalse"
+        ? [{ id: "true", text: "صح" }, { id: "false", text: "خطأ" }]
+        : null,
+    correct_answer: type === "mcq" ? "a" : type === "truefalse" ? "true" : null,
+    points: type === "mcq" || type === "truefalse" ? 1 : 10,
+  };
+};
 
 export default function AdminStages() {
   const [stages, setStages] = useState<any[]>([]);
