@@ -244,6 +244,26 @@ export default function StageDetail() {
                   </label>
                 </div>
               )}
+
+              {q.type === "simulation" && (
+                <div className="mt-4">
+                  {a.sim ? (
+                    <div className="rounded-xl border-2 border-primary/40 bg-primary/5 p-4 text-sm">
+                      <div className="font-black mb-1">✓ اكتملت المحاكاة</div>
+                      <div className="text-xs text-muted-foreground">
+                        مؤشر الأداء: {a.sim.result.performanceScore} • جودة القرارات: {a.sim.result.decisionQualityIndex}
+                      </div>
+                    </div>
+                  ) : (
+                    <SimulationPlayer
+                      question={q as unknown as SimulationQuestion}
+                      onComplete={(result, normalized) =>
+                        setAnswers((prev) => ({ ...prev, [q.id]: { sim: { result, normalized } } }))
+                      }
+                    />
+                  )}
+                </div>
+              )}
             </motion.div>
           );
         })}
