@@ -13,6 +13,7 @@ import Brand from "@/components/Brand";
 import SiteFooter from "@/components/SiteFooter";
 import FloatingContact from "@/components/FloatingContact";
 import { useNativeNotifications } from "@/hooks/useNativeNotifications";
+import DisclaimerBanner from "@/compliance/DisclaimerBanner";
 
 const userNav = [
   { to: "/", icon: LayoutDashboard, label: "اللوحة الرئيسية" },
