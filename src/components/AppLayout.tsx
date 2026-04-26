@@ -178,6 +178,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <div className="w-9" />
           </div>
         </header>
+        <DisclaimerBanner />
         <div className="p-4 lg:p-8 max-w-7xl mx-auto animate-fade-in">{children}</div>
         <SiteFooter />
       </main>
