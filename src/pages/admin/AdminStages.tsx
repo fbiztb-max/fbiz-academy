@@ -74,10 +74,31 @@ export default function AdminStages() {
         if (!q.options || q.options.length < 2) return toast.error("سؤال الاختيار يحتاج خيارين على الأقل");
         if (!q.correct_answer) return toast.error("حدد الإجابة الصحيحة لكل سؤال اختيار");
       }
+      if (q.type === "simulation") {
+        const sim = q as unknown as SimulationQuestion;
+        if (!sim.scenario?.trim()) return toast.error("أضف وصفاً للسيناريو الافتراضي");
+        if (!sim.steps || sim.steps.length === 0) return toast.error("أضف موقفاً واحداً على الأقل");
+        for (const s of sim.steps) {
+          if (!s.prompt.trim()) return toast.error("كل موقف يحتاج نصاً");
+          if (s.decisions.length < 2) return toast.error("كل موقف يحتاج قرارين على الأقل");
+          if (s.decisions.some((d) => !d.text.trim())) return toast.error("اكتب نص كل قرار");
+        }
+        const v = [
+          ...detectRealismViolations(sim.scenario),
+          ...detectRealismViolations(sim.text),
+          ...sim.steps.flatMap((s) => [
+            ...detectRealismViolations(s.prompt),
+            ...s.decisions.flatMap((d) => [...detectRealismViolations(d.text), ...detectRealismViolations(d.rationale)]),
+          ]),
+        ];
+        if (v.length) return toast.error("يحتوي السيناريو على مصطلحات واقعية محظورة: " + [...new Set(v)].join("، "));
+      }
     }
 
-    // Sync legacy fields with first question for backward compatibility
+    // Sync legacy fields with first non-simulation question for backward compatibility.
+    // Simulation is stored only inside `questions` JSONB; legacy mirror falls back to "text".
     const first = qs[0];
+    const isSim = first.type === "simulation";
     const payload: any = {
       order_index: editing.order_index,
       title: editing.title,
@@ -86,10 +107,10 @@ export default function AdminStages() {
       passing_score: editing.passing_score,
       is_published: editing.is_published,
       questions: qs,
-      question_type: first.type,
-      question_text: first.text,
-      options: first.options,
-      correct_answer: first.correct_answer,
+      question_type: isSim ? "text" : first.type,
+      question_text: first.text || "محاكاة تعليمية",
+      options: isSim ? null : first.options,
+      correct_answer: isSim ? null : first.correct_answer,
     };
 
     const { error } = editing.id
