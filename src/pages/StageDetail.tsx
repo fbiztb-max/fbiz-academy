@@ -11,10 +11,12 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Upload, Youtube, Sparkles, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Confetti from "@/components/Confetti";
+import SimulationPlayer from "@/features/simulation/SimulationPlayer";
+import { SimulationQuestion, SimulationResult } from "@/features/simulation/types";
 
 const ConfettiBurst = () => <Confetti trigger={Date.now()} />;
 
-type QType = "mcq" | "truefalse" | "text" | "file";
+type QType = "mcq" | "truefalse" | "text" | "file" | "simulation";
 interface Question {
   id: string;
   type: QType;
@@ -22,6 +24,8 @@ interface Question {
   options?: { id: string; text: string }[] | null;
   correct_answer?: string | null;
   points: number;
+  scenario?: string;
+  steps?: SimulationQuestion["steps"];
 }
 
 export default function StageDetail() {
