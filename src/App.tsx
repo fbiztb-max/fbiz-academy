@@ -5,6 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ConsentProvider } from "@/compliance/ConsentProvider";
+import ConsentGate from "@/compliance/ConsentGate";
+import ComplianceObserver from "@/compliance/ComplianceObserver";
 
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
