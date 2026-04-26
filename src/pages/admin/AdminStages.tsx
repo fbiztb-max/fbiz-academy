@@ -209,6 +209,7 @@ export default function AdminStages() {
                         <option value="truefalse">صح/خطأ</option>
                         <option value="text">نص مفتوح</option>
                         <option value="file">رفع ملف</option>
+                        <option value="simulation">محاكاة تعليمية</option>
                       </select>
                     </div>
                     <div>
@@ -225,7 +226,14 @@ export default function AdminStages() {
                     </div>
                   </div>
 
-                  <div><Label>نص السؤال</Label><Textarea rows={2} value={q.text} onChange={e => updateQ(idx, { text: e.target.value })}/></div>
+                  {q.type === "simulation" ? (
+                    <SimulationEditor
+                      value={q as unknown as SimulationQuestion}
+                      onChange={(next) => updateQ(idx, next as unknown as Partial<Question>)}
+                    />
+                  ) : (
+                    <div><Label>نص السؤال</Label><Textarea rows={2} value={q.text} onChange={e => updateQ(idx, { text: e.target.value })}/></div>
+                  )}
 
                   {q.type === "mcq" && (
                     <div className="space-y-2">
