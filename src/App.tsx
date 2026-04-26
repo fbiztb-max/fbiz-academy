@@ -32,6 +32,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminSupport from "./pages/admin/AdminSupport";
 import AdminAdmins from "./pages/admin/AdminAdmins";
+import AdminSecurity from "./pages/admin/AdminSecurity";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
