@@ -34,7 +34,7 @@ export default function StageDetail() {
   const navigate = useNavigate();
   const [stage, setStage] = useState<any>(null);
   const [previousSub, setPreviousSub] = useState<any>(null);
-  const [answers, setAnswers] = useState<Record<string, { value?: string; file?: File | null }>>({});
+  const [answers, setAnswers] = useState<Record<string, { value?: string; file?: File | null; sim?: { result: SimulationResult; normalized: number } }>>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<null | { passed: boolean; score: number; maxScore: number; pending?: boolean }>(null);
 
