@@ -55,7 +55,7 @@ export default function SiteFooter() {
         </div>
 
         <div className="text-[11px] text-muted-foreground text-center md:text-right leading-relaxed">
-          <div className="font-bold text-foreground">© {new Date().getFullYear()} أكاديمية FBiz</div>
+          <div className="font-bold text-foreground">© {new Date().getFullYear()} ProEdge</div>
           <div className="mt-1 flex items-center gap-1.5 justify-center md:justify-start flex-wrap">
             <ShieldCheck className="h-3 w-3 text-primary" />
             <span>بياناتك محمية ومشفّرة لدينا.</span>
