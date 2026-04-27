@@ -14,6 +14,7 @@ import SiteFooter from "@/components/SiteFooter";
 import FloatingContact from "@/components/FloatingContact";
 import { useNativeNotifications } from "@/hooks/useNativeNotifications";
 import DisclaimerBanner from "@/compliance/DisclaimerBanner";
+import AmbientBackground from "@/components/AmbientBackground";
 
 const userNav = [
   { to: "/", icon: LayoutDashboard, label: "اللوحة الرئيسية" },
@@ -67,7 +68,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex" dir="rtl">
+    <div className="min-h-screen bg-background flex relative" dir="rtl">
+      <AmbientBackground />
       {/* Sidebar */}
       <aside className={cn(
         "fixed lg:sticky top-0 right-0 h-screen w-72 bg-sidebar border-l border-sidebar-border z-40 transition-transform",

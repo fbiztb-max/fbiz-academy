@@ -10,7 +10,9 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Loader2, Mail, Lock, User as UserIcon } from "lucide-react";
 import { z } from "zod";
-import logo from "@/assets/fbiz-logo.png";
+import logoDark from "@/assets/proedge-logo-dark.png";
+import logoLight from "@/assets/proedge-logo-light.png";
+import { useTheme } from "@/hooks/useTheme";
 import FloatingContact from "@/components/FloatingContact";
 import { isNative, oauthRedirectUri } from "@/lib/platform";
 import { Browser } from "@capacitor/browser";
@@ -22,6 +24,8 @@ const nameSchema = z.string().trim().min(2, { message: "الاسم قصير جد
 export default function Auth() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const logo = theme === "light" ? logoLight : logoDark;
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -93,34 +97,34 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex bg-background" dir="rtl">
       {/* Left visual panel */}
-      <div className="hidden lg:flex flex-1 relative overflow-hidden bg-gradient-navy">
-        <div className="absolute inset-0 bg-gradient-radial-gold opacity-60" />
-        <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary-glow/10 blur-3xl" />
+      <div className="hidden lg:flex flex-1 relative overflow-hidden gradient-obsidian">
+        <div className="absolute inset-0 bg-gradient-radial-gold opacity-70" />
+        <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-primary/25 blur-3xl animate-float-soft" />
+        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary-glow/15 blur-3xl animate-float-soft" style={{ animationDelay: '1.5s' }} />
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
-          <div className="flex items-center gap-4" dir="rtl">
-            <div className="h-16 w-16 rounded-2xl overflow-hidden ring-1 ring-primary/40 shadow-gold bg-[hsl(217_70%_13%)] shrink-0">
-              <img src={logo} alt="FBiz" className="w-full h-full object-cover" />
+          <div className="flex items-center gap-4" dir="ltr">
+            <div className="h-16 w-16 rounded-2xl overflow-hidden ring-1 ring-primary/40 shadow-gold bg-[hsl(0_0%_4%)] shrink-0 animate-glow-breathe">
+              <img src={logo} alt="ProEdge" className="w-full h-full object-contain p-1" />
             </div>
             <div>
-              <div className="font-black text-2xl flex items-center gap-2">
-                <span>أكاديمية</span>
-                <bdi className="text-gradient-gold" style={{ unicodeBidi: "isolate" }}>FBiz</bdi>
+              <div className="font-black text-3xl flex items-baseline gap-1">
+                <span className="text-gradient-gold">Pro</span>
+                <span className="text-white">Edge</span>
               </div>
-              <div className="text-xs text-white/60">فراس بزنس · تدريب الأعمال</div>
+              <div className="text-[11px] text-white/60 tracking-[0.25em] uppercase">Executive Training</div>
             </div>
           </div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} dir="rtl">
             <h1 className="text-5xl font-black leading-tight mb-6">
-              من <span className="text-gradient-gold">قناة FBiz</span><br />
+              من <span className="text-shimmer-gold">المعرفة</span><br />
               إلى تنفيذ حقيقي للأعمال
             </h1>
             <p className="text-white/70 text-lg leading-relaxed max-w-md">
-              أكاديمية فراس بزنس تحوّل المعرفة إلى مهارة عبر مراحل تنفيذية، تقييم دقيق، وملاحظات شخصية تواكب رحلتك خطوة بخطوة.
+              ProEdge منصة تدريب تنفيذية تحوّل المعرفة إلى مهارة عبر مراحل عملية، تقييم دقيق، وملاحظات شخصية تواكب رحلتك خطوة بخطوة.
             </p>
           </motion.div>
-          <div className="flex items-center gap-6 text-sm text-white/50">
-            <div>© أكاديمية FBiz · فراس بزنس</div>
+          <div className="flex items-center gap-6 text-sm text-white/50" dir="rtl">
+            <div>© ProEdge · منصة تدريب احترافية</div>
           </div>
         </div>
       </div>
@@ -128,16 +132,16 @@ export default function Auth() {
       {/* Right form */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="lg:hidden flex items-center gap-3 mb-8" dir="rtl">
-            <div className="h-12 w-12 rounded-xl overflow-hidden ring-1 ring-primary/30 bg-[hsl(217_70%_13%)] shrink-0">
-              <img src={logo} alt="FBiz" className="w-full h-full object-cover" />
+          <div className="lg:hidden flex items-center gap-3 mb-8" dir="ltr">
+            <div className="h-12 w-12 rounded-xl overflow-hidden ring-1 ring-primary/30 bg-[hsl(0_0%_4%)] shrink-0">
+              <img src={logo} alt="ProEdge" className="w-full h-full object-contain p-1" />
             </div>
             <div>
-              <div className="font-black text-lg leading-tight flex items-center gap-1.5">
-                <span>أكاديمية</span>
-                <bdi className="text-gradient-gold" style={{ unicodeBidi: "isolate" }}>FBiz</bdi>
+              <div className="font-black text-xl leading-tight flex items-baseline gap-1">
+                <span className="text-gradient-gold">Pro</span>
+                <span>Edge</span>
               </div>
-              <span className="text-[10px] text-muted-foreground">فراس بزنس</span>
+              <span className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">Executive Training</span>
             </div>
           </div>
 

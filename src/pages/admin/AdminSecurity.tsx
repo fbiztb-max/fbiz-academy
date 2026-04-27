@@ -249,7 +249,7 @@ export default function AdminSecurity() {
       {/* Printable Full Report */}
       {reportUserId && reportProfile && (
         <div className="hidden print:block print-only p-8" dir="rtl">
-          <h1 className="text-2xl font-black border-b-2 border-black pb-2 mb-4">تقرير الامتثال الكامل — أكاديمية FBiz</h1>
+          <h1 className="text-2xl font-black border-b-2 border-black pb-2 mb-4">تقرير الامتثال الكامل — منصة ProEdge</h1>
           <div className="mb-6 text-sm">
             <p><b>المستخدم:</b> {reportProfile.full_name} (#{reportProfile.serial_id})</p>
             <p><b>البريد:</b> {reportProfile.email}</p>
