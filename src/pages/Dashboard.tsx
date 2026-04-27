@@ -63,7 +63,7 @@ export default function Dashboard() {
   return (
     <AppLayout>
       {/* Hero */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden surface-card p-6 lg:p-10 mb-6 bg-gradient-navy text-white">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden surface-card p-6 lg:p-10 mb-6 gradient-obsidian text-white noise-overlay">
         <div className="absolute inset-0 bg-gradient-radial-gold" />
         <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative z-10">
